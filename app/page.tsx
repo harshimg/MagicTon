@@ -22,27 +22,45 @@ export default function Home() {
   const [quote, setQuote] = useState<string | null>(null);
   const [loadingQuote, setLoadingQuote] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState<string | null>(null);
+  const [balances, setBalances] = useState<Record<string, string>>({});
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
-  // Fetch TON balance
+// Fetch all token balances
   useEffect(() => {
-    if (!wallet?.account?.address) {
-      setBalance(null);
-      return;
-    }
-    const fetchBalance = async () => {
+    if (!wallet?.account?.address) { setBalances({}); return; }
+    const fetchBalances = async () => {
       try {
-        const { Address } = await import('@ton/ton');
-        const addr = Address.parse(wallet.account.address);
-        const bal = await tonClient.getBalance(addr);
-        setBalance((Number(bal) / 1e9).toFixed(2));
-      } catch {
-        setBalance(null);
-      }
+        const { Address, JettonMaster } = await import('@ton/ton');
+        const userAddr = Address.parse(wallet.account.address);
+        const newBalances: Record<string, string> = {};
+
+        // TON balance
+        const tonBal = await tonClient.getBalance(userAddr);
+        newBalances['TON'] = (Number(tonBal) / 1e9).toFixed(2);
+
+        // Jetton balances
+        for (const token of TOKENS.filter(t => t.symbol !== 'TON')) {
+          try {
+            const master = tonClient.open(JettonMaster.create(Address.parse(token.address)));
+            const walletAddr = await master.getWalletAddress(userAddr);
+            const jettonWallet = tonClient.open({
+              address: walletAddr,
+              async getBalance(provider: any) {
+                const { stack } = await provider.get('get_wallet_data', []);
+                return stack.readBigNumber();
+              }
+            } as any);
+            const bal = await (jettonWallet as any).getBalance();
+            newBalances[token.symbol] = (Number(bal) / Math.pow(10, token.decimals)).toFixed(2);
+          } catch {
+            newBalances[token.symbol] = '0.00';
+          }
+        }
+        setBalances(newBalances);
+      } catch { setBalances({}); }
     };
-    fetchBalance();
+    fetchBalances();
   }, [wallet]);
 
   // Fetch live quote
@@ -135,11 +153,7 @@ export default function Home() {
         <div className="flex justify-center mb-4">
           <TonConnectButton />
         </div>
-        {balance && (
-          <div className="text-center mb-4 text-gray-400 text-sm">
-            💎 Balance: <span className="text-white font-bold">{balance} TON</span>
-          </div>
-        )}
+        
         <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
           <div className="bg-gray-800 rounded-2xl p-4 mb-2">
             <p className="text-gray-400 text-sm mb-2">From</p>
@@ -158,6 +172,9 @@ export default function Home() {
                 onChange={(e) => setAmount(e.target.value)}
                 className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0"
               />
+            </div>
+            <div className="text-right text-xs text-gray-500 mt-1">
+              Balance: {balances[fromToken.symbol] ?? '—'} {fromToken.symbol}
             </div>
           </div>
           <div className="flex justify-center my-3">
