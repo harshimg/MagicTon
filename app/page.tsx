@@ -7,7 +7,7 @@ const TOKENS = [
   { symbol: 'TON', name: 'Toncoin', icon: '💎', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c' },
   { symbol: 'USDT', name: 'Tether USD', icon: '💵', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs' },
   { symbol: 'STON', name: 'STON.fi', icon: '⚡', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO' },
-  { symbol: 'NOT', name: 'Notcoin', icon: '🪙', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT' },
+  { symbol: 'NOT', name: 'Notcoin', icon: '🪙', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__8fd' },
 ];
 
 export default function Home() {
@@ -35,7 +35,7 @@ export default function Home() {
     const fetchQuote = async () => {
       setLoadingQuote(true);
       try {
-        const units = Math.floor(parseFloat(amount) * 1e9).toString();
+        const units = Math.floor(parseFloat(amount) * 1000000000).toString();
         const res = await fetch(
           `https://api.ston.fi/v1/swap/simulate`,
           {
