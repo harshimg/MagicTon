@@ -31,7 +31,7 @@ export default function Home() {
     if (!wallet?.account?.address) { setBalances({}); return; }
     const fetchBalances = async () => {
       try {
-        const { Address, JettonMaster } = await import('@ton/ton');
+        const { Address } = await import('@ton/ton');
         const userAddr = Address.parse(wallet.account.address);
         const newBalances: Record<string, string> = {};
 
@@ -39,24 +39,16 @@ export default function Home() {
         const tonBal = await tonClient.getBalance(userAddr);
         newBalances['TON'] = (Number(tonBal) / 1e9).toFixed(2);
 
-        // Jetton balances
-        for (const token of TOKENS.filter(t => t.symbol !== 'TON')) {
-          try {
-            const master = tonClient.open(JettonMaster.create(Address.parse(token.address)));
-            const walletAddr = await master.getWalletAddress(userAddr);
-            const jettonWallet = tonClient.open({
-              address: walletAddr,
-              async getBalance(provider: any) {
-                const { stack } = await provider.get('get_wallet_data', []);
-                return stack.readBigNumber();
-              }
-            } as any);
-            const bal = await (jettonWallet as any).getBalance();
-            newBalances[token.symbol] = (Number(bal) / Math.pow(10, token.decimals)).toFixed(2);
-          } catch {
-            newBalances[token.symbol] = '0.00';
+        // Jetton balances via STON.fi API
+        const walletAssets = await stonApiClient.getWalletAssets(userAddr.toString());
+        for (const asset of walletAssets) {
+          const token = TOKENS.find(t => t.address.toLowerCase() === asset.contractAddress?.toLowerCase());
+          const walletData = asset.walletAddress as any;
+          if (token && walletData?.balance) {
+            newBalances[token.symbol] = (Number(walletData.balance) / Math.pow(10, token.decimals)).toFixed(2);
           }
         }
+
         setBalances(newBalances);
       } catch { setBalances({}); }
     };
