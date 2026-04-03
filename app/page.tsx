@@ -1,16 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TonConnectButton, useTonConnectUI } from '@tonconnect/ui-react';
+import { TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { StonApiClient } from '@ston-fi/api';
+import { DEX, pTON } from '@ston-fi/sdk';
+import { TonClient, toNano } from '@ton/ton';
 
-const client = new StonApiClient();
+const stonApiClient = new StonApiClient();
+const tonClient = new TonClient({ endpoint: 'https://toncenter.com/api/v2/jsonRPC' });
 
 const TOKENS = [
   { symbol: 'TON', name: 'Toncoin', icon: '💎', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
   { symbol: 'USDT', name: 'Tether USD', icon: '💵', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 },
   { symbol: 'STON', name: 'STON.fi', icon: '⚡', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9 },
-  { symbol: 'NOT', name: 'Notcoin', icon: '🪙', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', decimals: 9 },
 ];
 
 export default function Home() {
@@ -20,35 +22,44 @@ export default function Home() {
   const [quote, setQuote] = useState<string | null>(null);
   const [loadingQuote, setLoadingQuote] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [balance, setBalance] = useState<string | null>(null);
   const [tonConnectUI] = useTonConnectUI();
+  const wallet = useTonWallet();
 
-  const handleSwap = () => {
-    setFromToken(toToken);
-    setToToken(fromToken);
-    setQuote(null);
-  };
-
+  // Fetch TON balance
   useEffect(() => {
-    if (!amount || parseFloat(amount) <= 0) {
-      setQuote(null);
+    if (!wallet?.account?.address) {
+      setBalance(null);
       return;
     }
+    const fetchBalance = async () => {
+      try {
+        const { Address } = await import('@ton/ton');
+        const addr = Address.parse(wallet.account.address);
+        const bal = await tonClient.getBalance(addr);
+        setBalance((Number(bal) / 1e9).toFixed(2));
+      } catch {
+        setBalance(null);
+      }
+    };
+    fetchBalance();
+  }, [wallet]);
+
+  // Fetch live quote
+  useEffect(() => {
+    if (!amount || parseFloat(amount) <= 0) { setQuote(null); return; }
     const fetchQuote = async () => {
       setLoadingQuote(true);
       try {
-        const units = Math.floor(parseFloat(amount) * 1e9).toString();
-        const result = await client.simulateSwap({
+        const units = Math.floor(parseFloat(amount) * Math.pow(10, fromToken.decimals)).toString();
+        const result = await stonApiClient.simulateSwap({
           offerAddress: fromToken.address,
           askAddress: toToken.address,
           offerUnits: units,
           slippageTolerance: '0.01',
         });
-        const out = (parseInt(result.askUnits) / Math.pow(10, toToken.decimals)).toFixed(6);
-        setQuote(out);
-      } catch (e) {
-        console.error(e);
-        setQuote(null);
-      }
+        setQuote((parseInt(result.askUnits) / Math.pow(10, toToken.decimals)).toFixed(6));
+      } catch { setQuote(null); }
       setLoadingQuote(false);
     };
     const timer = setTimeout(fetchQuote, 600);
@@ -56,16 +67,62 @@ export default function Home() {
   }, [amount, fromToken, toToken]);
 
   const handleMagicSwap = async () => {
-    if (!tonConnectUI.connected) {
-      tonConnectUI.openModal();
-      return;
-    }
+    if (!tonConnectUI.connected) { tonConnectUI.openModal(); return; }
+    if (!amount || parseFloat(amount) <= 0) { alert('Enter an amount!'); return; }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert('✨ Swap submitted! Check your wallet.');
-    }, 2000);
+    try {
+      const router = tonClient.open(new DEX.v1.Router());
+      const userAddress = wallet!.account.address;
+      const offerAmount = toNano(amount);
+
+      let txParams;
+      if (fromToken.symbol === 'TON') {
+        txParams = await router.getSwapTonToJettonTxParams({
+          userWalletAddress: userAddress,
+          proxyTon: new pTON.v1(),
+          offerAmount,
+          askJettonAddress: toToken.address,
+          minAskAmount: '1',
+          queryId: Date.now(),
+        });
+      } else if (toToken.symbol === 'TON') {
+        txParams = await router.getSwapJettonToTonTxParams({
+          userWalletAddress: userAddress,
+          offerJettonAddress: fromToken.address,
+          offerAmount,
+          proxyTon: new pTON.v1(),
+          minAskAmount: '1',
+          queryId: Date.now(),
+        });
+      } else {
+        txParams = await router.getSwapJettonToJettonTxParams({
+          userWalletAddress: userAddress,
+          offerJettonAddress: fromToken.address,
+          offerAmount,
+          askJettonAddress: toToken.address,
+          minAskAmount: '1',
+          queryId: Date.now(),
+        });
+      }
+
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [{
+          address: txParams.to.toString(),
+          amount: txParams.value.toString(),
+          payload: txParams.body?.toBoc().toString('base64'),
+        }],
+      });
+
+      alert('✨ Swap sent! Check your wallet in a few seconds.');
+    } catch (e: any) {
+      alert('Swap failed: ' + (e?.message || 'Unknown error'));
+    }
+    setLoading(false);
   };
+
+  const handleFlip = () => { setFromToken(toToken); setToToken(fromToken); setQuote(null); };
 
   return (
     <main className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -75,9 +132,14 @@ export default function Home() {
           <h1 className="text-5xl font-bold text-white mb-2">✨ MagicTon</h1>
           <p className="text-purple-400">Swap tokens like magic on TON</p>
         </div>
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <TonConnectButton />
         </div>
+        {balance && (
+          <div className="text-center mb-4 text-gray-400 text-sm">
+            💎 Balance: <span className="text-white font-bold">{balance} TON</span>
+          </div>
+        )}
         <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
           <div className="bg-gray-800 rounded-2xl p-4 mb-2">
             <p className="text-gray-400 text-sm mb-2">From</p>
@@ -99,7 +161,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex justify-center my-3">
-            <button onClick={handleSwap} className="bg-purple-600 hover:bg-purple-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl transition-all hover:rotate-180 duration-300">↕</button>
+            <button onClick={handleFlip} className="bg-purple-600 hover:bg-purple-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl transition-all hover:rotate-180 duration-300">↕</button>
           </div>
           <div className="bg-gray-800 rounded-2xl p-4 mb-4">
             <p className="text-gray-400 text-sm mb-2">To</p>
