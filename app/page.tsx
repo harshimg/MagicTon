@@ -94,7 +94,7 @@ export default function Home() {
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="bg-transparent text-white text-2xl font-bold flex-1 outline-none text-right placeholder-gray-600"
+                className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0"
               />
             </div>
           </div>
