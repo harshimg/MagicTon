@@ -7,7 +7,7 @@ import { StonApiClient } from '@ston-fi/api';
 const client = new StonApiClient();
 
 const TOKENS = [
-  { symbol: 'TON', name: 'Toncoin', icon: '💎', address: 'ton' },
+  { symbol: 'TON', name: 'Toncoin', icon: '💎', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c' },
   { symbol: 'USDT', name: 'Tether USD', icon: '💵', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs' },
   { symbol: 'STON', name: 'STON.fi', icon: '⚡', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO' },
   { symbol: 'NOT', name: 'Notcoin', icon: '🪙', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT' },
