@@ -7,7 +7,7 @@ import { DEX, pTON } from '@ston-fi/sdk';
 import { TonClient, toNano } from '@ton/ton';
 
 const stonApiClient = new StonApiClient();
-const tonClient = new TonClient({ endpoint: 'https://toncenter.com/api/v2/jsonRPC' });
+const tonClient = new TonClient({ endpoint: 'https://toncenter.com/api/v2/jsonRPC', apiKey: '8c598d1b958dc1bd1f64714540f7b8f7485081fd06338eab2c4acef1ee498f5f' });
 
 const TOKENS = [
   { symbol: 'TON', name: 'Toncoin', icon: '💎', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
@@ -42,7 +42,7 @@ export default function Home() {
         // Jetton balances via toncenter
         for (const token of TOKENS.filter(t => t.symbol !== 'TON')) {
           try {
-            const res = await fetch(`https://toncenter.com/api/v3/jetton/wallets?owner_address=${userAddr.toString()}&jetton_address=${token.address}&limit=1`);
+            const res = await fetch(`https://toncenter.com/api/v3/jetton/wallets?owner_address=${userAddr.toString()}&jetton_address=${token.address}&limit=1&api_key=8c598d1b958dc1bd1f64714540f7b8f7485081fd06338eab2c4acef1ee498f5f`);
             const data = await res.json();
             const bal = data?.jetton_wallets?.[0]?.balance ?? '0';
             newBalances[token.symbol] = (Number(bal) / Math.pow(10, token.decimals)).toFixed(2);
