@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ston-fi/api": "^0.32.0",
     "@ston-fi/sdk": "^2.7.0",
     "@tonconnect/ui-react": "^2.4.4",
     "buffer": "^6.0.3",
