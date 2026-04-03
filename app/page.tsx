@@ -39,13 +39,15 @@ export default function Home() {
         const tonBal = await tonClient.getBalance(userAddr);
         newBalances['TON'] = (Number(tonBal) / 1e9).toFixed(2);
 
-        // Jetton balances via STON.fi API
-        const walletAssets = await stonApiClient.getWalletAssets(userAddr.toString());
-        for (const asset of walletAssets) {
-          const token = TOKENS.find(t => t.address.toLowerCase() === asset.contractAddress?.toLowerCase());
-          const walletData = asset.walletAddress as any;
-          if (token && walletData?.balance) {
-            newBalances[token.symbol] = (Number(walletData.balance) / Math.pow(10, token.decimals)).toFixed(2);
+        // Jetton balances via toncenter
+        for (const token of TOKENS.filter(t => t.symbol !== 'TON')) {
+          try {
+            const res = await fetch(`https://toncenter.com/api/v3/jetton/wallets?owner_address=${userAddr.toString()}&jetton_address=${token.address}&limit=1`);
+            const data = await res.json();
+            const bal = data?.jetton_wallets?.[0]?.balance ?? '0';
+            newBalances[token.symbol] = (Number(bal) / Math.pow(10, token.decimals)).toFixed(2);
+          } catch {
+            newBalances[token.symbol] = '0.00';
           }
         }
 
