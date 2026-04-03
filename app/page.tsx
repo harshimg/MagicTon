@@ -37,12 +37,19 @@ export default function Home() {
       try {
         const units = Math.floor(parseFloat(amount) * 1e9).toString();
         const res = await fetch(
-          `https://api.ston.fi/v1/swap/simulate?offer_address=${fromToken.address}&ask_address=${toToken.address}&units=${units}&slippage_tolerance=0.01`,
+          `https://api.ston.fi/v1/swap/simulate`,
           {
+            method: 'POST',
             headers: {
+              'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            mode: 'cors',
+            body: JSON.stringify({
+              offer_address: fromToken.address,
+              ask_address: toToken.address,
+              units: units,
+              slippage_tolerance: '0.01',
+            }),
           }
         );
         const data = await res.json();
