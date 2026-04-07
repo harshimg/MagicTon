@@ -13,9 +13,27 @@ const tonClient = new TonClient({
 });
 
 const TOKENS = [
-  { symbol: 'TON', name: 'Toncoin', icon: 'https://ton.org/download/ton_symbol.png', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
-  { symbol: 'USDt', name: 'Tether USD', icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 },
-  { symbol: 'STON', name: 'STON.fi', icon: 'https://assets.coingecko.com/coins/images/27047/small/ston.png', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9 },
+  { 
+    symbol: 'TON', 
+    name: 'Toncoin', 
+    icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png', 
+    address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 
+    decimals: 9 
+  },
+  { 
+    symbol: 'USDt', 
+    name: 'Tether USD', 
+    icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', 
+    address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', 
+    decimals: 6 
+  },
+  { 
+    symbol: 'STON', 
+    name: 'STON.fi', 
+    icon: 'https://assets.coingecko.com/coins/images/27047/small/ston.png', 
+    address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', 
+    decimals: 9 
+  },
 ];
 
 export default function Home() {
@@ -123,7 +141,12 @@ export default function Home() {
       >
         {TOKENS.map(t => <option key={t.symbol} value={t.symbol}>{t.symbol}</option>)}
       </select>
-      <img src={value.icon} alt={value.symbol} className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full" />
+      <img 
+        src={value.icon} 
+        alt={value.symbol} 
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full"
+        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+      />
     </div>
   );
 
