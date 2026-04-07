@@ -13,9 +13,9 @@ const tonClient = new TonClient({
 });
 
 const TOKENS = [
-  { symbol: 'TON', name: 'Toncoin', icon: 'https://cache.tonapi.io/imgproxy/T1-6cVIsD97pMqGPKBPLPmMqb6K5apNaEJFnMfuKFOo/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMuc3Rvbi5maS9sb2dvL3Rvbl9zeW1ib2wucG5n.webp', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
-  { symbol: 'USDt', name: 'Tether USD', icon: 'https://cache.tonapi.io/imgproxy/T3ysKm4G4PNBuB5m2XFKxM7jGFMSu2BYo3vHJe4WKXM/rs:fill:200:200:1/g:no/aHR0cHM6Ly90ZXRoZXIudG8vaW1hZ2VzL2xvZ29DaXJjbGUucG5n.webp', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 },
-  { symbol: 'STON', name: 'STON.fi', icon: 'https://cache.tonapi.io/imgproxy/o2-7Tz6d3gIBHVfwmqPAMgFAkSFmHACEMl-3bFVqSI/rs:fill:200:200:1/g:no/aHR0cHM6Ly9zdGF0aWMuc3Rvbi5maS9sb2dvL3N0b25fYmxhY2sucG5n.webp', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9 },
+  { symbol: 'TON', name: 'Toncoin', icon: 'https://ton.org/download/ton_symbol.png', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
+  { symbol: 'USDt', name: 'Tether USD', icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 },
+  { symbol: 'STON', name: 'STON.fi', icon: 'https://assets.coingecko.com/coins/images/27047/small/ston.png', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9 },
 ];
 
 export default function Home() {
