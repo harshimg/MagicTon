@@ -28,10 +28,10 @@ const TOKENS = [
     decimals: 6 
   },
   { 
-    symbol: 'STON', 
-    name: 'STON.fi', 
-    icon: 'https://static.ston.fi/logo/ston_black.png', 
-    address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', 
+    symbol: 'STON',
+    name: 'STON.fi',
+    icon: 'https://app.ston.fi/images/tokens/ston.png',
+    address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO',
     decimals: 9 
   },
 ];
