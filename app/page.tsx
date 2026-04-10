@@ -34,6 +34,13 @@ const TOKENS = [
     address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO',
     decimals: 9 
   },
+  { 
+    symbol: 'NOT', 
+    name: 'Notcoin', 
+    icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350', 
+    address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', 
+    decimals: 9 
+  },
 ];
 
 export default function Home() {
