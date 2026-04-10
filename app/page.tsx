@@ -41,6 +41,13 @@ const TOKENS = [
     address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', 
     decimals: 9 
   },
+  { 
+    symbol: 'GOMINING', 
+    name: 'GoMining Token', 
+    icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542', 
+    address: 'EQD0laik0FgHV8aNfRhebi8GDG2rpDyKGXem0MBfya_Ew1-8', 
+    decimals: 9 
+  },
 ];
 
 export default function Home() {
