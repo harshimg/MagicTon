@@ -30,7 +30,7 @@ const TOKENS = [
   { 
     symbol: 'STON',
     name: 'STON.fi',
-    icon: 'https://app.ston.fi/images/tokens/ston.png',
+    icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059',
     address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO',
     decimals: 9 
   },
