@@ -146,23 +146,35 @@ export default function Home() {
 
   const handleFlip = () => { setFromToken(toToken); setToToken(fromToken); setQuote(null); setAmount(''); };
 
-  const TokenSelect = ({ value, onChange }: { value: typeof TOKENS[0], onChange: (t: typeof TOKENS[0]) => void }) => (
-    <div className="relative">
-      <select
-        className="appearance-none bg-gray-700 hover:bg-gray-600 text-white rounded-2xl pl-10 pr-8 py-2 text-base font-bold outline-none cursor-pointer"
-        value={value.symbol}
-        onChange={(e) => onChange(TOKENS.find(t => t.symbol === e.target.value)!)}
-      >
-        {TOKENS.map(t => <option key={t.symbol} value={t.symbol}>{t.symbol}</option>)}
-      </select>
-      <img 
-        src={value.icon} 
-        alt={value.symbol} 
-        className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full"
-        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-      />
-    </div>
-  );
+  const TokenSelect = ({ value, onChange }: { value: typeof TOKENS[0], onChange: (t: typeof TOKENS[0]) => void }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl px-3 py-2 font-bold outline-none cursor-pointer"
+        >
+          <img src={value.icon} alt={value.symbol} className="w-6 h-6 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          <span>{value.symbol}</span>
+          <span className="text-gray-400 text-sm">▼</span>
+        </button>
+        {open && (
+          <div className="absolute top-12 left-0 bg-gray-800 border border-gray-600 rounded-2xl overflow-hidden z-50 min-w-[150px] shadow-xl">
+            {TOKENS.map(t => (
+              <button
+                key={t.symbol}
+                onClick={() => { onChange(t); setOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-3 hover:bg-gray-700 text-white font-bold"
+              >
+                <img src={t.icon} alt={t.symbol} className="w-6 h-6 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <span>{t.symbol}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <main className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
