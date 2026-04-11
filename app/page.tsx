@@ -304,7 +304,7 @@ export default function Home() {
             <img src="/MagicTon_logo.png" alt="MagicTon" className="w-12 h-12 rounded-xl" />
             <h1 className="text-5xl font-bold text-white">MagicTon</h1>
           </div>
-          <p className="text-purple-400">Swap tokens like magic on TON</p>
+          <p className="text-purple-400">Swap tokens like magic on TON ✨</p>
         </div>
 
         {/* Wallet */}
