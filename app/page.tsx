@@ -54,7 +54,7 @@ const BANNER_TOKENS = [
   { symbol: 'TON', coingecko: 'the-open-network', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png' },
   { symbol: 'STON', coingecko: 'ston-fi', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059' },
   { symbol: 'NOT', coingecko: 'notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350' },
-  { symbol: 'GOMINING', coingecko: 'gomining-token', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542' },
+  { symbol: 'GOMINING', coingecko: 'gomining', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542' },
   { symbol: 'BTC', coingecko: 'bitcoin', icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
   { symbol: 'ETH', coingecko: 'ethereum', icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
 ];
@@ -94,7 +94,7 @@ export default function Home() {
           'the-open-network': 'TON',
           'ston-fi': 'STON',
           'notcoin': 'NOT',
-          'gomining-token': 'GOMINING',
+          'gomining': 'GOMINING',
           'bitcoin': 'BTC',
           'ethereum': 'ETH',
         };
@@ -281,7 +281,13 @@ export default function Home() {
             <div key={i} className="flex items-center gap-2 text-sm">
               <img src={t.icon} alt={t.symbol} className="w-5 h-5 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               <span className="text-white font-bold">{t.symbol}</span>
-              <span className="text-gray-300">${bannerPrices[t.symbol]?.price?.toFixed(2) ?? '...'}</span>
+              <span className="text-gray-300">
+                ${bannerPrices[t.symbol]?.price 
+                  ? bannerPrices[t.symbol].price < 0.01 
+                    ? bannerPrices[t.symbol].price.toFixed(6)
+                    : bannerPrices[t.symbol].price.toFixed(2)
+                  : '...'}
+              </span>
               <span className={bannerPrices[t.symbol]?.change >= 0 ? 'text-green-400' : 'text-red-400'}>
                 {bannerPrices[t.symbol]?.change >= 0 ? '+' : ''}{bannerPrices[t.symbol]?.change?.toFixed(2) ?? '0'}%
               </span>
