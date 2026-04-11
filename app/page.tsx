@@ -212,7 +212,7 @@ export default function Home() {
           offerAmount, askJettonAddress: toToken.address, minAskAmount: '1', queryId: Date.now(),
         });
       }
-      await tonConnectUI.sendTransaction({
+      const txResult = await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 600,
         messages: [{
           address: txParams.to.toString(),
@@ -232,6 +232,7 @@ export default function Home() {
         fromSymbol: fromToken.symbol,
         toAmount: quote ?? '?',
         toSymbol: toToken.symbol,
+        txHash: wallet?.account?.address,
       });
     } catch (e: any) {
       alert('Swap failed: ' + (e?.message || 'Unknown error'));
@@ -337,6 +338,16 @@ export default function Home() {
               </span>
               <span>Balance: <span className="text-gray-300">{balances[fromToken.symbol] ?? '—'} {fromToken.symbol}</span></span>
             </div>
+            {balances[fromToken.symbol] && parseFloat(balances[fromToken.symbol]) > 0 && (
+              <div className="flex gap-2 mt-2">
+                {[25, 50, 75, 100].map(pct => (
+                  <button key={pct} onClick={() => setAmount((parseFloat(balances[fromToken.symbol]) * pct / 100).toFixed(4))}
+                    className="flex-1 bg-gray-700 hover:bg-purple-600 text-gray-300 hover:text-white text-xs rounded-lg py-1 transition-all">
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Flip */}
@@ -445,7 +456,7 @@ export default function Home() {
               <span>via MagicTon</span>
             </div>
             <a
-              href={`https://tonscan.org/`}
+              href={`https://tonscan.org/address/${successData.txHash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full block text-center bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl py-2 transition-all"
@@ -471,6 +482,49 @@ export default function Home() {
           animation: slide-in 0.3s ease-out;
         }
       `}</style>
+          {/* Footer */}
+      <div className="relative z-10 w-full max-w-4xl mt-12 border-t border-gray-800 pt-8 pb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <img src="/MagicTon_logo.png" alt="MagicTon" className="w-8 h-8 rounded-lg" />
+              <span className="text-white font-bold text-lg">MagicTon</span>
+            </div>
+            <p className="text-gray-500 text-xs">Swap tokens like magic on TON blockchain. Fast, simple, and secure.</p>
+          </div>
+          <div>
+            <p className="text-white font-bold mb-3 text-sm">Tools</p>
+            <div className="space-y-2 text-gray-500 text-xs">
+              <p className="hover:text-purple-400 cursor-pointer">Magic Swap</p>
+              <p className="hover:text-purple-400 cursor-pointer">Lucky Swap</p>
+              <p className="hover:text-purple-400 cursor-pointer">Swap History</p>
+            </div>
+          </div>
+          <div>
+            <p className="text-white font-bold mb-3 text-sm">MagicTon</p>
+            <div className="space-y-2 text-gray-500 text-xs">
+              <p className="hover:text-purple-400 cursor-pointer">About</p>
+              <a href="https://github.com/harshimg/MagicTon" target="_blank" className="block hover:text-purple-400">GitHub</a>
+            </div>
+          </div>
+          <div>
+            <p className="text-white font-bold mb-3 text-sm">Support</p>
+            <div className="space-y-2 text-gray-500 text-xs">
+              <p className="hover:text-purple-400 cursor-pointer">FAQ</p>
+              <p className="hover:text-purple-400 cursor-pointer">Contact</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div className="flex gap-4">
+            <a href="https://t.me/" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">✈️</a>
+            <a href="https://twitter.com/" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">🐦</a>
+            <a href="https://github.com/harshimg/MagicTon" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">💻</a>
+          </div>
+          <p className="text-gray-600 text-xs">MagicTon © 2025 • Powered by STON.fi • Built on TON</p>
+          <p className="text-gray-600 text-xs">Data by CoinGecko</p>
+        </div>
+      </div>
     </main>
   );
 }
