@@ -86,15 +86,23 @@ export default function Home() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const ids = BANNER_TOKENS.map(t => t.coingecko).join(',');
+        const ids = 'the-open-network,ston-fi,notcoin,gomining-token,bitcoin,ethereum';
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
         const data = await res.json();
         const prices: Record<string, { price: number; change: number }> = {};
-        BANNER_TOKENS.forEach(t => {
-          if (data[t.coingecko]) {
-            prices[t.symbol] = {
-              price: data[t.coingecko].usd,
-              change: data[t.coingecko].usd_24h_change,
+        const mapping: Record<string, string> = {
+          'the-open-network': 'TON',
+          'ston-fi': 'STON',
+          'notcoin': 'NOT',
+          'gomining-token': 'GOMINING',
+          'bitcoin': 'BTC',
+          'ethereum': 'ETH',
+        };
+        Object.entries(mapping).forEach(([id, symbol]) => {
+          if (data[id]) {
+            prices[symbol] = {
+              price: data[id].usd,
+              change: data[id].usd_24h_change,
             };
           }
         });
