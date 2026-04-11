@@ -13,16 +13,48 @@ const tonClient = new TonClient({
 });
 
 const TOKENS = [
-  { symbol: 'TON', name: 'Toncoin', icon: '/images/ton.png', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9, coingecko: 'the-open-network' },
-  { symbol: 'USDt', name: 'Tether USD', icon: '/images/usdt.png', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6, coingecko: 'tether' },
-  { symbol: 'STON', name: 'STON.fi', icon: '/images/ston.png', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9, coingecko: 'ston-fi' },
-  { symbol: 'NOT', name: 'Notcoin', icon: '/images/not.png', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', decimals: 9, coingecko: 'notcoin' },
+  { 
+    symbol: 'TON', 
+    name: 'Toncoin', 
+    icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png', 
+    address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 
+    decimals: 9 
+  },
+  { 
+    symbol: 'USDt', 
+    name: 'Tether USD', 
+    icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', 
+    address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', 
+    decimals: 6 
+  },
+  { 
+    symbol: 'STON',
+    name: 'STON.fi',
+    icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059',
+    address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO',
+    decimals: 9 
+  },
+  { 
+    symbol: 'NOT', 
+    name: 'Notcoin', 
+    icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350', 
+    address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', 
+    decimals: 9 
+  },
+  { 
+    symbol: 'GOMINING', 
+    name: 'GoMining Token', 
+    icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542', 
+    address: 'EQD0laik0FgHV8aNfRhebi8GDG2rpDyKGXem0MBfya_Ew1-8', 
+    decimals: 9 
+  },
 ];
 
 const BANNER_TOKENS = [
-  { symbol: 'TON', coingecko: 'the-open-network', icon: '/images/ton.png' },
-  { symbol: 'STON', coingecko: 'ston-fi', icon: '/images/ston.png' },
-  { symbol: 'NOT', coingecko: 'notcoin', icon: '/images/not.png' },
+  { symbol: 'TON', coingecko: 'the-open-network', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png' },
+  { symbol: 'STON', coingecko: 'ston-fi', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059' },
+  { symbol: 'NOT', coingecko: 'notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350' },
+  { symbol: 'GOMININIG', coingecko: 'GoMining Token', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542' },
   { symbol: 'BTC', coingecko: 'bitcoin', icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
   { symbol: 'ETH', coingecko: 'ethereum', icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
 ];
