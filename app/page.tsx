@@ -320,7 +320,7 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <TokenSelect value={fromToken} onChange={(t) => { setFromToken(t); setQuote(null); }} />
               <input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)}
-                className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0" />
+                className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             </div>
             <div className="flex justify-between mt-2 text-xs text-gray-500">
               <span className="text-gray-400">
