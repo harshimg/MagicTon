@@ -181,9 +181,9 @@ export default function Home() {
   };
 
   const SwapCard = ({ isLucky }: { isLucky: boolean }) => (
-    <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
+    <>
       {isLucky && (
-        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3 mb-4 text-center">
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 mb-4 text-center">
           <p className="text-yellow-400 text-sm font-bold">🎲 Lucky Swap — feeling lucky today?</p>
           <p className="text-gray-400 text-xs mt-1">Randomly picks a token pair using 10% of your balance</p>
           <button onClick={handleLuckySwap} className="mt-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm rounded-xl px-4 py-1.5 transition-all">
@@ -191,6 +191,7 @@ export default function Home() {
           </button>
         </div>
       )}
+      <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
 
       {/* From */}
       <div className="bg-gray-800 rounded-2xl p-4 mb-2">
@@ -235,9 +236,7 @@ export default function Home() {
         </div>
       </div>
 
-      {prediction && (
-        <div className="bg-purple-900/30 border border-purple-500/30 rounded-xl p-3 mb-4 text-sm text-purple-200 text-center">{prediction}</div>
-      )}
+
 
       {quote && amount && (
         <div className="bg-purple-900/20 border border-purple-500/20 rounded-xl p-3 mb-4 text-sm text-gray-400 flex justify-between">
@@ -274,6 +273,7 @@ export default function Home() {
       )}
       <p className="text-center text-gray-500 text-sm mt-4">Powered by STON.fi • Live prices</p>
     </div>
+    </>
   );
 
   return (
