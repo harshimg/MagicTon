@@ -80,6 +80,7 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [prediction, setPrediction] = useState<string | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [successData, setSuccessData] = useState<{fromAmount: string, fromSymbol: string, toAmount: string, toSymbol: string, txHash?: string} | null>(null);
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
@@ -226,7 +227,12 @@ export default function Home() {
         toAmount: quote ?? '?',
         time: new Date().toLocaleString(),
       });
-      alert('✨ Swap sent! Check your wallet.');
+      setSuccessData({
+        fromAmount: amount,
+        fromSymbol: fromToken.symbol,
+        toAmount: quote ?? '?',
+        toSymbol: toToken.symbol,
+      });
     } catch (e: any) {
       alert('Swap failed: ' + (e?.message || 'Unknown error'));
     }
@@ -420,7 +426,35 @@ export default function Home() {
           <p className="text-center text-gray-500 text-sm mt-4">Powered by STON.fi • Live prices</p>
         </div>
       </div>
-
+          {/* Success Popup */}
+                {successData && (
+        <div className="fixed inset-0 flex items-end justify-end p-6 z-50 pointer-events-none">
+          <div className="bg-gray-900 border border-green-500/40 rounded-2xl p-4 shadow-2xl w-80 pointer-events-auto animate-slide-in">
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">✓</div>
+                <span className="text-green-400 font-bold text-lg">Swap Successful!</span>
+              </div>
+              <button onClick={() => setSuccessData(null)} className="text-gray-500 hover:text-white text-xl leading-none">×</button>
+            </div>
+            <p className="text-gray-300 text-sm mb-3">
+              Swapped <span className="text-white font-bold">{successData.fromAmount} {successData.fromSymbol}</span> for <span className="text-purple-400 font-bold">{successData.toAmount} {successData.toSymbol}</span>
+            </p>
+            <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+              <img src="/MagicTon_logo.png" alt="MagicTon" className="w-4 h-4 rounded" />
+              <span>via MagicTon</span>
+            </div>
+            <a
+              href={`https://tonscan.org/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full block text-center bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl py-2 transition-all"
+            >
+              View Transaction →
+            </a>
+          </div>
+        </div>
+      )}
       <style jsx>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -428,6 +462,13 @@ export default function Home() {
         }
         .animate-marquee {
           animation: marquee 20s linear infinite;
+        }
+        @keyframes slide-in {
+          0% { transform: translateX(100px); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out;
         }
       `}</style>
     </main>
