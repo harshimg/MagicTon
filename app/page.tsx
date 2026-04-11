@@ -323,7 +323,11 @@ export default function Home() {
                 className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0" />
             </div>
             <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span></span>
+              <span className="text-gray-400">
+                {amount && bannerPrices[fromToken.symbol]?.price 
+                  ? `≈ $${(parseFloat(amount) * bannerPrices[fromToken.symbol].price).toFixed(2)}`
+                  : ''}
+              </span>
               <span>Balance: <span className="text-gray-300">{balances[fromToken.symbol] ?? '—'} {fromToken.symbol}</span></span>
             </div>
           </div>
@@ -343,7 +347,11 @@ export default function Home() {
               </div>
             </div>
             <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span></span>
+              <span className="text-gray-400">
+                {quote && bannerPrices[toToken.symbol]?.price 
+                  ? `≈ $${(parseFloat(quote) * bannerPrices[toToken.symbol].price).toFixed(2)}`
+                  : ''}
+              </span>
               <span>Balance: <span className="text-gray-300">{balances[toToken.symbol] ?? '—'} {toToken.symbol}</span></span>
             </div>
           </div>
