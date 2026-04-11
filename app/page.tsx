@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { StonApiClient } from '@ston-fi/api';
 import { DEX, pTON } from '@ston-fi/sdk';
@@ -13,61 +13,26 @@ const tonClient = new TonClient({
 });
 
 const TOKENS = [
-  { 
-    symbol: 'TON', 
-    name: 'Toncoin', 
-    icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png', 
-    address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 
-    decimals: 9 
-  },
-  { 
-    symbol: 'USDt', 
-    name: 'Tether USD', 
-    icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', 
-    address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', 
-    decimals: 6 
-  },
-  { 
-    symbol: 'STON',
-    name: 'STON.fi',
-    icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059',
-    address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO',
-    decimals: 9 
-  },
-  { 
-    symbol: 'NOT', 
-    name: 'Notcoin', 
-    icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350', 
-    address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', 
-    decimals: 9 
-  },
-  { 
-    symbol: 'GOMINING', 
-    name: 'GoMining Token', 
-    icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542', 
-    address: 'EQD0laik0FgHV8aNfRhebi8GDG2rpDyKGXem0MBfya_Ew1-8', 
-    decimals: 9 
-  },
+  { symbol: 'TON', name: 'Toncoin', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
+  { symbol: 'USDt', name: 'Tether USD', icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 },
+  { symbol: 'STON', name: 'STON.fi', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9 },
+  { symbol: 'NOT', name: 'Notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', decimals: 9 },
+  { symbol: 'GOMINING', name: 'GoMining Token', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542', address: 'EQD0laik0FgHV8aNfRhebi8GDG2rpDyKGXem0MBfya_Ew1-8', decimals: 9 },
 ];
 
 const BANNER_TOKENS = [
   { symbol: 'TON', coingecko: 'the-open-network', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png' },
-  { symbol: 'STON', coingecko: 'ston-fi', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059' },
+  { symbol: 'STON', coingecko: 'ston-2', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059' },
   { symbol: 'NOT', coingecko: 'notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350' },
-  { symbol: 'GOMINING', coingecko: 'gomining', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542' },
+  { symbol: 'GOMINING', coingecko: 'gmt-token', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542' },
   { symbol: 'BTC', coingecko: 'bitcoin', icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
   { symbol: 'ETH', coingecko: 'ethereum', icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
 ];
 
-type SwapRecord = {
-  from: string;
-  to: string;
-  fromAmount: string;
-  toAmount: string;
-  time: string;
-};
+type SwapRecord = { from: string; to: string; fromAmount: string; toAmount: string; time: string; };
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<'swap' | 'lucky'>('swap');
   const [fromToken, setFromToken] = useState(TOKENS[0]);
   const [toToken, setToToken] = useState(TOKENS[1]);
   const [amount, setAmount] = useState('');
@@ -80,11 +45,10 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [prediction, setPrediction] = useState<string | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [successData, setSuccessData] = useState<{fromAmount: string, fromSymbol: string, toAmount: string, toSymbol: string, txHash?: string} | null>(null);
+  const [successData, setSuccessData] = useState<{ fromAmount: string; fromSymbol: string; toAmount: string; toSymbol: string; txHash?: string } | null>(null);
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
-  // Fetch banner prices
   useEffect(() => {
     const fetchPrices = async () => {
       try {
@@ -92,22 +56,8 @@ export default function Home() {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&x_cg_demo_api_key=CG-vGAx3E1oe3S32DArqM2xX4Hs`);
         const data = await res.json();
         const prices: Record<string, { price: number; change: number }> = {};
-        const mapping: Record<string, string> = {
-          'the-open-network': 'TON',
-          'ston-2': 'STON',
-          'notcoin': 'NOT',
-          'gmt-token': 'GOMINING',
-          'bitcoin': 'BTC',
-          'ethereum': 'ETH',
-        };
-        Object.entries(mapping).forEach(([id, symbol]) => {
-          if (data[id]) {
-            prices[symbol] = {
-              price: data[id].usd,
-              change: data[id].usd_24h_change,
-            };
-          }
-        });
+        const mapping: Record<string, string> = { 'the-open-network': 'TON', 'ston-2': 'STON', 'notcoin': 'NOT', 'gmt-token': 'GOMINING', 'bitcoin': 'BTC', 'ethereum': 'ETH' };
+        Object.entries(mapping).forEach(([id, symbol]) => { if (data[id]) prices[symbol] = { price: data[id].usd, change: data[id].usd_24h_change }; });
         setBannerPrices(prices);
       } catch {}
     };
@@ -116,7 +66,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch balances
   useEffect(() => {
     if (!wallet?.account?.address) { setBalances({}); return; }
     const fetchBalances = async () => {
@@ -140,34 +89,21 @@ export default function Home() {
     fetchBalances();
   }, [wallet]);
 
-  // Fetch quote + prediction
   useEffect(() => {
     if (!amount || parseFloat(amount) <= 0) { setQuote(null); setPrediction(null); return; }
     const fetchQuote = async () => {
       setLoadingQuote(true);
       try {
         const units = Math.floor(parseFloat(amount) * Math.pow(10, fromToken.decimals)).toString();
-        const result = await stonApiClient.simulateSwap({
-          offerAddress: fromToken.address,
-          askAddress: toToken.address,
-          offerUnits: units,
-          slippageTolerance: '0.01',
-        });
-        const outAmount = (parseInt(result.askUnits) / Math.pow(10, toToken.decimals));
+        const result = await stonApiClient.simulateSwap({ offerAddress: fromToken.address, askAddress: toToken.address, offerUnits: units, slippageTolerance: '0.01' });
+        const outAmount = parseInt(result.askUnits) / Math.pow(10, toToken.decimals);
         setQuote(outAmount.toFixed(6));
-
-        // Magic prediction based on price change
         const fromChange = bannerPrices[fromToken.symbol]?.change ?? 0;
         const toChange = bannerPrices[toToken.symbol]?.change ?? 0;
-        if (fromChange > 2 && toChange < fromChange) {
-          setPrediction('⚠️ Your sell token is pumping! Maybe wait?');
-        } else if (toChange > 2) {
-          setPrediction('🚀 Great time! Receive token is trending up!');
-        } else if (fromChange < -2) {
-          setPrediction('✅ Good call! Sell token is dropping.');
-        } else {
-          setPrediction('😐 Market is stable. Safe to swap!');
-        }
+        if (fromChange > 2 && toChange < fromChange) setPrediction('⚠️ Your sell token is pumping! Maybe wait?');
+        else if (toChange > 2) setPrediction('🚀 Great time! Receive token is trending up!');
+        else if (fromChange < -2) setPrediction('✅ Good call! Sell token is dropping.');
+        else setPrediction('😐 Market is stable. Safe to swap!');
       } catch { setQuote(null); setPrediction(null); }
       setLoadingQuote(false);
     };
@@ -175,7 +111,6 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [amount, fromToken, toToken, bannerPrices, refreshTick]);
 
-  // Load swap history from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('magicton_history');
     if (saved) setSwapHistory(JSON.parse(saved));
@@ -197,46 +132,16 @@ export default function Home() {
       const offerAmount = toNano(amount);
       let txParams;
       if (fromToken.symbol === 'TON') {
-        txParams = await router.getSwapTonToJettonTxParams({
-          userWalletAddress: userAddress, proxyTon: new pTON.v1(),
-          offerAmount, askJettonAddress: toToken.address, minAskAmount: '1', queryId: Date.now(),
-        });
+        txParams = await router.getSwapTonToJettonTxParams({ userWalletAddress: userAddress, proxyTon: new pTON.v1(), offerAmount, askJettonAddress: toToken.address, minAskAmount: '1', queryId: Date.now() });
       } else if (toToken.symbol === 'TON') {
-        txParams = await router.getSwapJettonToTonTxParams({
-          userWalletAddress: userAddress, offerJettonAddress: fromToken.address,
-          offerAmount, proxyTon: new pTON.v1(), minAskAmount: '1', queryId: Date.now(),
-        });
+        txParams = await router.getSwapJettonToTonTxParams({ userWalletAddress: userAddress, offerJettonAddress: fromToken.address, offerAmount, proxyTon: new pTON.v1(), minAskAmount: '1', queryId: Date.now() });
       } else {
-        txParams = await router.getSwapJettonToJettonTxParams({
-          userWalletAddress: userAddress, offerJettonAddress: fromToken.address,
-          offerAmount, askJettonAddress: toToken.address, minAskAmount: '1', queryId: Date.now(),
-        });
+        txParams = await router.getSwapJettonToJettonTxParams({ userWalletAddress: userAddress, offerJettonAddress: fromToken.address, offerAmount, askJettonAddress: toToken.address, minAskAmount: '1', queryId: Date.now() });
       }
-      const txResult = await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [{
-          address: txParams.to.toString(),
-          amount: txParams.value.toString(),
-          payload: txParams.body?.toBoc().toString('base64'),
-        }],
-      });
-      saveSwap({
-        from: fromToken.symbol,
-        to: toToken.symbol,
-        fromAmount: amount,
-        toAmount: quote ?? '?',
-        time: new Date().toLocaleString(),
-      });
-      setSuccessData({
-        fromAmount: amount,
-        fromSymbol: fromToken.symbol,
-        toAmount: quote ?? '?',
-        toSymbol: toToken.symbol,
-        txHash: wallet?.account?.address,
-      });
-    } catch (e: any) {
-      alert('Swap failed: ' + (e?.message || 'Unknown error'));
-    }
+      await tonConnectUI.sendTransaction({ validUntil: Math.floor(Date.now() / 1000) + 600, messages: [{ address: txParams.to.toString(), amount: txParams.value.toString(), payload: txParams.body?.toBoc().toString('base64') }] });
+      saveSwap({ from: fromToken.symbol, to: toToken.symbol, fromAmount: amount, toAmount: quote ?? '?', time: new Date().toLocaleString() });
+      setSuccessData({ fromAmount: amount, fromSymbol: fromToken.symbol, toAmount: quote ?? '?', toSymbol: toToken.symbol, txHash: wallet?.account?.address });
+    } catch (e: any) { alert('Swap failed: ' + (e?.message || 'Unknown error')); }
     setLoading(false);
   };
 
@@ -247,15 +152,12 @@ export default function Home() {
     const others = TOKENS.filter(t => t.symbol !== from.symbol);
     const to = others[Math.floor(Math.random() * others.length)];
     const bal = parseFloat(balances[from.symbol] ?? '0');
-    const luckyAmount = (bal * 0.1).toFixed(4);
-    setFromToken(from);
-    setToToken(to);
-    setAmount(luckyAmount);
+    setFromToken(from); setToToken(to); setAmount((bal * 0.1).toFixed(4));
   };
 
   const handleFlip = () => { setFromToken(toToken); setToToken(fromToken); setQuote(null); setAmount(''); };
 
-  const TokenSelect = ({ value, onChange }: { value: typeof TOKENS[0], onChange: (t: typeof TOKENS[0]) => void }) => {
+  const TokenSelect = ({ value, onChange }: { value: typeof TOKENS[0]; onChange: (t: typeof TOKENS[0]) => void }) => {
     const [open, setOpen] = useState(false);
     return (
       <div className="relative">
@@ -278,167 +180,159 @@ export default function Home() {
     );
   };
 
-  return (
-    <main className="min-h-screen bg-black flex flex-col items-center p-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+  const SwapCard = ({ isLucky }: { isLucky: boolean }) => (
+    <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
+      {isLucky && (
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3 mb-4 text-center">
+          <p className="text-yellow-400 text-sm font-bold">🎲 Lucky Swap — feeling lucky today?</p>
+          <p className="text-gray-400 text-xs mt-1">Randomly picks a token pair using 10% of your balance</p>
+          <button onClick={handleLuckySwap} className="mt-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm rounded-xl px-4 py-1.5 transition-all">
+            🎲 Pick Random Tokens
+          </button>
+        </div>
+      )}
 
-      {/* Price Banner */}
-      <div className="w-full bg-gray-900/80 border-b border-purple-500/20 overflow-hidden py-2 mb-4 relative z-10">
-        <div className="flex animate-marquee gap-8 whitespace-nowrap">
-          {[...BANNER_TOKENS, ...BANNER_TOKENS].map((t, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm">
-              <img src={t.icon} alt={t.symbol} className="w-5 h-5 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-              <span className="text-white font-bold">{t.symbol}</span>
-              <span className="text-gray-300">
-                ${bannerPrices[t.symbol]?.price 
-                  ? bannerPrices[t.symbol].price < 0.01 
-                    ? bannerPrices[t.symbol].price.toFixed(6)
-                    : bannerPrices[t.symbol].price.toFixed(2)
-                  : '...'}
-              </span>
-              <span className={bannerPrices[t.symbol]?.change >= 0 ? 'text-green-400' : 'text-red-400'}>
-                {bannerPrices[t.symbol]?.change >= 0 ? '+' : ''}{bannerPrices[t.symbol]?.change?.toFixed(2) ?? '0'}%
-              </span>
-            </div>
-          ))}
+      {/* From */}
+      <div className="bg-gray-800 rounded-2xl p-4 mb-2">
+        <p className="text-gray-400 text-sm mb-3">You send</p>
+        <div className="flex items-center gap-3">
+          <TokenSelect value={fromToken} onChange={(t) => { setFromToken(t); setQuote(null); }} />
+          <input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)}
+            className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+        </div>
+        <div className="flex justify-between mt-2 text-xs text-gray-500">
+          <span className="text-gray-400">{amount && bannerPrices[fromToken.symbol]?.price ? `≈ $${(parseFloat(amount) * bannerPrices[fromToken.symbol].price).toFixed(2)}` : ''}</span>
+          <span>Balance: <span className="text-gray-300">{balances[fromToken.symbol] ?? '—'} {fromToken.symbol}</span></span>
+        </div>
+        {balances[fromToken.symbol] && parseFloat(balances[fromToken.symbol]) > 0 && (
+          <div className="flex gap-2 mt-2">
+            {[25, 50, 75, 100].map(pct => (
+              <button key={pct} onClick={() => setAmount((parseFloat(balances[fromToken.symbol]) * pct / 100).toFixed(4))}
+                className="flex-1 bg-gray-700 hover:bg-purple-600 text-gray-300 hover:text-white text-xs rounded-lg py-1 transition-all">{pct}%</button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Flip + Refresh */}
+      <div className="flex justify-center items-center gap-3 my-2">
+        <button onClick={handleFlip} className="bg-gray-700 hover:bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center transition-all hover:rotate-180 duration-300 text-lg">⇅</button>
+        <button onClick={() => setRefreshTick(t => t + 1)} className="bg-gray-700 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:rotate-180 duration-500 transition-all text-sm" title="Refresh price">🔄</button>
+      </div>
+
+      {/* To */}
+      <div className="bg-gray-800 rounded-2xl p-4 mb-4">
+        <p className="text-gray-400 text-sm mb-3">You receive</p>
+        <div className="flex items-center gap-3">
+          <TokenSelect value={toToken} onChange={(t) => { setToToken(t); setQuote(null); }} />
+          <div className="flex-1 text-right text-2xl font-bold text-purple-400">
+            {loadingQuote ? <span className="text-gray-500 text-lg">fetching...</span> : quote ?? '0.00'}
+          </div>
+        </div>
+        <div className="flex justify-between mt-2 text-xs text-gray-500">
+          <span className="text-gray-400">{quote && bannerPrices[toToken.symbol]?.price ? `≈ $${(parseFloat(quote) * bannerPrices[toToken.symbol].price).toFixed(2)}` : ''}</span>
+          <span>Balance: <span className="text-gray-300">{balances[toToken.symbol] ?? '—'} {toToken.symbol}</span></span>
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-md mt-4">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <img src="/MagicTon_logo.png" alt="MagicTon" className="w-12 h-12 rounded-xl" />
-            <h1 className="text-5xl font-bold text-white">MagicTon</h1>
-          </div>
-          <p className="text-purple-400">Swap tokens like magic on TON ✨</p>
+      {prediction && (
+        <div className="bg-purple-900/30 border border-purple-500/30 rounded-xl p-3 mb-4 text-sm text-purple-200 text-center">{prediction}</div>
+      )}
+
+      {quote && amount && (
+        <div className="bg-purple-900/20 border border-purple-500/20 rounded-xl p-3 mb-4 text-sm text-gray-400 flex justify-between">
+          <span>Rate</span>
+          <span className="text-purple-300">1 {fromToken.symbol} ≈ {(parseFloat(quote) / parseFloat(amount)).toFixed(4)} {toToken.symbol}</span>
         </div>
+      )}
 
-        {/* Wallet */}
-        <div className="flex justify-end mb-4">
-          <TonConnectButton />
-        </div>
+      <button onClick={handleMagicSwap} disabled={loading}
+        className={`w-full disabled:opacity-50 text-white font-bold text-xl rounded-2xl py-4 transition-all duration-300 shadow-lg mb-3 ${isLucky ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 shadow-yellow-500/30' : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-purple-500/30'}`}>
+        {loading ? '✨ Magic happening...' : isLucky ? '🎲 Lucky Swap!' : '✨ Magic Swap'}
+      </button>
 
-        {/* Swap Card */}
-        <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
+      <button onClick={() => setShowHistory(!showHistory)}
+        className="w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-400 font-bold text-sm rounded-2xl py-2 transition-all duration-300">
+        📊 {showHistory ? 'Hide' : 'Show'} Swap History ({swapHistory.length})
+      </button>
 
-          {/* From */}
-          <div className="bg-gray-800 rounded-2xl p-4 mb-2">
-            <p className="text-gray-400 text-sm mb-3">You send</p>
-            <div className="flex items-center gap-3">
-              <TokenSelect value={fromToken} onChange={(t) => { setFromToken(t); setQuote(null); }} />
-              <input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)}
-                className="bg-transparent text-white text-2xl font-bold w-0 flex-1 outline-none text-right placeholder-gray-600 min-w-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span className="text-gray-400">
-                {amount && bannerPrices[fromToken.symbol]?.price 
-                  ? `≈ $${(parseFloat(amount) * bannerPrices[fromToken.symbol].price).toFixed(2)}`
-                  : ''}
-              </span>
-              <span>Balance: <span className="text-gray-300">{balances[fromToken.symbol] ?? '—'} {fromToken.symbol}</span></span>
-            </div>
-            {balances[fromToken.symbol] && parseFloat(balances[fromToken.symbol]) > 0 && (
-              <div className="flex gap-2 mt-2">
-                {[25, 50, 75, 100].map(pct => (
-                  <button key={pct} onClick={() => setAmount((parseFloat(balances[fromToken.symbol]) * pct / 100).toFixed(4))}
-                    className="flex-1 bg-gray-700 hover:bg-purple-600 text-gray-300 hover:text-white text-xs rounded-lg py-1 transition-all">
-                    {pct}%
-                  </button>
-                ))}
+      {showHistory && (
+        <div className="mt-4 space-y-2">
+          {swapHistory.length === 0 ? (
+            <p className="text-center text-gray-500 text-sm py-4">No swaps yet!</p>
+          ) : (
+            swapHistory.map((s, i) => (
+              <div key={i} className="bg-gray-800 rounded-xl p-3 text-sm">
+                <span className="text-white font-bold">{s.fromAmount} {s.from}</span>
+                <span className="text-gray-400 mx-2">→</span>
+                <span className="text-purple-400 font-bold">{s.toAmount} {s.to}</span>
+                <p className="text-gray-500 text-xs mt-1">{s.time}</p>
               </div>
-            )}
+            ))
+          )}
+        </div>
+      )}
+      <p className="text-center text-gray-500 text-sm mt-4">Powered by STON.fi • Live prices</p>
+    </div>
+  );
+
+  return (
+    <main className="min-h-screen bg-black flex flex-col items-center">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+
+      {/* Navbar */}
+      <div className="w-full bg-gray-900/90 border-b border-gray-800 relative z-20">
+        {/* Price Banner */}
+        <div className="w-full bg-black/50 overflow-hidden py-1.5 border-b border-gray-800">
+          <div className="flex animate-marquee gap-8 whitespace-nowrap">
+            {[...BANNER_TOKENS, ...BANNER_TOKENS].map((t, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs">
+                <img src={t.icon} alt={t.symbol} className="w-4 h-4 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <span className="text-white font-bold">{t.symbol}</span>
+                <span className="text-gray-300">${bannerPrices[t.symbol]?.price ? bannerPrices[t.symbol].price < 0.01 ? bannerPrices[t.symbol].price.toFixed(6) : bannerPrices[t.symbol].price.toFixed(2) : '...'}</span>
+                <span className={bannerPrices[t.symbol]?.change >= 0 ? 'text-green-400' : 'text-red-400'}>
+                  {bannerPrices[t.symbol]?.change >= 0 ? '+' : ''}{bannerPrices[t.symbol]?.change?.toFixed(2) ?? '0'}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Nav */}
+        <div className="flex items-center justify-between px-6 py-3">
+          {/* Logo left */}
+          <div className="flex items-center gap-3">
+            <img src="/MagicTon_logo.png" alt="MagicTon" className="w-9 h-9 rounded-xl" />
+            <div>
+              <p className="text-white font-bold text-lg leading-tight">MagicTon</p>
+              <p className="text-purple-400 text-xs leading-tight">Swap tokens like magic on TON ✨</p>
+            </div>
           </div>
 
-          {/* Flip */}
-          <div className="flex justify-center items-center gap-3 my-2">
-            <button onClick={handleFlip} className="bg-gray-700 hover:bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center transition-all hover:rotate-180 duration-300 text-lg">⇅</button>
-            <button 
-              onClick={() => setRefreshTick(t => t + 1)}
-              className="bg-gray-700 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:rotate-180 duration-500 transition-all text-sm"
-              title="Refresh price"
-            >
-              🔄
+          {/* Nav tabs center */}
+          <div className="flex items-center gap-1 bg-gray-800 rounded-2xl p-1">
+            <button onClick={() => setActiveTab('swap')}
+              className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === 'swap' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+              ✨ Swap
+            </button>
+            <button onClick={() => setActiveTab('lucky')}
+              className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === 'lucky' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}>
+              🎲 Lucky Swap
             </button>
           </div>
 
-          {/* To */}
-          <div className="bg-gray-800 rounded-2xl p-4 mb-4">
-            <p className="text-gray-400 text-sm mb-3">You receive</p>
-            <div className="flex items-center gap-3">
-              <TokenSelect value={toToken} onChange={(t) => { setToToken(t); setQuote(null); }} />
-              <div className="flex-1 text-right text-2xl font-bold text-purple-400">
-                {loadingQuote ? <span className="text-gray-500 text-lg">fetching...</span> : quote ?? '0.00'}
-              </div>
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span className="text-gray-400">
-                {quote && bannerPrices[toToken.symbol]?.price 
-                  ? `≈ $${(parseFloat(quote) * bannerPrices[toToken.symbol].price).toFixed(2)}`
-                  : ''}
-              </span>
-              <span>Balance: <span className="text-gray-300">{balances[toToken.symbol] ?? '—'} {toToken.symbol}</span></span>
-            </div>
-          </div>
-
-          {/* Magic Prediction */}
-          {prediction && (
-            <div className="bg-purple-900/30 border border-purple-500/30 rounded-xl p-3 mb-4 text-sm text-purple-200 text-center">
-              {prediction}
-            </div>
-          )}
-
-          {/* Rate */}
-          {quote && amount && (
-            <div className="bg-purple-900/20 border border-purple-500/20 rounded-xl p-3 mb-4 text-sm text-gray-400 flex justify-between">
-              <span>Rate</span>
-              <span className="text-purple-300">1 {fromToken.symbol} ≈ {(parseFloat(quote) / parseFloat(amount)).toFixed(4)} {toToken.symbol}</span>
-            </div>
-          )}
-
-          {/* Swap Button */}
-          <button onClick={handleMagicSwap} disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 text-white font-bold text-xl rounded-2xl py-4 transition-all duration-300 shadow-lg shadow-purple-500/30 mb-3">
-            {loading ? '✨ Magic happening...' : '✨ Magic Swap'}
-          </button>
-
-          {/* Lucky Swap */}
-          <button onClick={handleLuckySwap}
-            className="w-full bg-gray-800 hover:bg-gray-700 border border-yellow-500/30 text-yellow-400 font-bold text-lg rounded-2xl py-3 transition-all duration-300 mb-3">
-            🎲 Lucky Swap
-          </button>
-
-          {/* History Button */}
-          <button onClick={() => setShowHistory(!showHistory)}
-            className="w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-400 font-bold text-sm rounded-2xl py-2 transition-all duration-300">
-            📊 {showHistory ? 'Hide' : 'Show'} Swap History ({swapHistory.length})
-          </button>
-
-          {/* History List */}
-          {showHistory && (
-            <div className="mt-4 space-y-2">
-              {swapHistory.length === 0 ? (
-                <p className="text-center text-gray-500 text-sm py-4">No swaps yet!</p>
-              ) : (
-                swapHistory.map((s, i) => (
-                  <div key={i} className="bg-gray-800 rounded-xl p-3 text-sm flex justify-between items-center">
-                    <div>
-                      <span className="text-white font-bold">{s.fromAmount} {s.from}</span>
-                      <span className="text-gray-400 mx-2">→</span>
-                      <span className="text-purple-400 font-bold">{s.toAmount} {s.to}</span>
-                      <p className="text-gray-500 text-xs mt-1">{s.time}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          <p className="text-center text-gray-500 text-sm mt-4">Powered by STON.fi • Live prices</p>
+          {/* Wallet right */}
+          <TonConnectButton />
         </div>
       </div>
-          {/* Success Popup */}
-                {successData && (
+
+      {/* Main content */}
+      <div className="relative z-10 w-full max-w-md mt-8 px-4">
+        <SwapCard isLucky={activeTab === 'lucky'} />
+      </div>
+
+      {/* Success Popup */}
+      {successData && (
         <div className="fixed inset-0 flex items-end justify-end p-6 z-50 pointer-events-none">
           <div className="bg-gray-900 border border-green-500/40 rounded-2xl p-4 shadow-2xl w-80 pointer-events-auto animate-slide-in">
             <div className="flex justify-between items-start mb-3">
@@ -455,35 +349,16 @@ export default function Home() {
               <img src="/MagicTon_logo.png" alt="MagicTon" className="w-4 h-4 rounded" />
               <span>via MagicTon</span>
             </div>
-            <a
-              href={`https://tonscan.org/address/${successData.txHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full block text-center bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl py-2 transition-all"
-            >
+            <a href={`https://tonscan.org/address/${successData.txHash}`} target="_blank" rel="noopener noreferrer"
+              className="w-full block text-center bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl py-2 transition-all">
               View Transaction →
             </a>
           </div>
         </div>
       )}
-      <style jsx>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 20s linear infinite;
-        }
-        @keyframes slide-in {
-          0% { transform: translateX(100px); opacity: 0; }
-          100% { transform: translateX(0); opacity: 1; }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-      `}</style>
-          {/* Footer */}
-      <div className="relative z-10 w-full max-w-4xl mt-12 border-t border-gray-800 pt-8 pb-6">
+
+      {/* Footer */}
+      <div className="relative z-10 w-full max-w-4xl mt-12 border-t border-gray-800 pt-8 pb-6 px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -495,9 +370,9 @@ export default function Home() {
           <div>
             <p className="text-white font-bold mb-3 text-sm">Tools</p>
             <div className="space-y-2 text-gray-500 text-xs">
-              <p className="hover:text-purple-400 cursor-pointer">Magic Swap</p>
-              <p className="hover:text-purple-400 cursor-pointer">Lucky Swap</p>
-              <p className="hover:text-purple-400 cursor-pointer">Swap History</p>
+              <p className="hover:text-purple-400 cursor-pointer" onClick={() => setActiveTab('swap')}>Magic Swap</p>
+              <p className="hover:text-purple-400 cursor-pointer" onClick={() => setActiveTab('lucky')}>Lucky Swap</p>
+              <p className="hover:text-purple-400 cursor-pointer" onClick={() => setShowHistory(true)}>Swap History</p>
             </div>
           </div>
           <div>
@@ -525,6 +400,13 @@ export default function Home() {
           <p className="text-gray-600 text-xs">Data by CoinGecko</p>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 20s linear infinite; }
+        @keyframes slide-in { 0% { transform: translateX(100px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+        .animate-slide-in { animation: slide-in 0.3s ease-out; }
+      `}</style>
     </main>
   );
 }
