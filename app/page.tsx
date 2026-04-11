@@ -86,15 +86,15 @@ export default function Home() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const ids = 'the-open-network,ston-fi,notcoin,gomining,bitcoin,ethereum';
+        const ids = 'the-open-network,ston-2,notcoin,gmt-token,bitcoin,ethereum';
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&x_cg_demo_api_key=CG-vGAx3E1oe3S32DArqM2xX4Hs`);
         const data = await res.json();
         const prices: Record<string, { price: number; change: number }> = {};
         const mapping: Record<string, string> = {
           'the-open-network': 'TON',
-          'ston-fi': 'STON',
+          'ston-2': 'STON',
           'notcoin': 'NOT',
-          'gomining': 'GOMINING',
+          'gmt-token': 'GOMINING',
           'bitcoin': 'BTC',
           'ethereum': 'ETH',
         };
