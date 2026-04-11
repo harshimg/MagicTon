@@ -79,6 +79,7 @@ export default function Home() {
   const [swapHistory, setSwapHistory] = useState<SwapRecord[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [prediction, setPrediction] = useState<string | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
@@ -171,7 +172,7 @@ export default function Home() {
     };
     const timer = setTimeout(fetchQuote, 600);
     return () => clearTimeout(timer);
-  }, [amount, fromToken, toToken, bannerPrices]);
+  }, [amount, fromToken, toToken, bannerPrices, refreshTick]);
 
   // Load swap history from localStorage
   useEffect(() => {
@@ -333,8 +334,15 @@ export default function Home() {
           </div>
 
           {/* Flip */}
-          <div className="flex justify-center my-2">
+          <div className="flex justify-center items-center gap-3 my-2">
             <button onClick={handleFlip} className="bg-gray-700 hover:bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center transition-all hover:rotate-180 duration-300 text-lg">⇅</button>
+            <button 
+              onClick={() => setRefreshTick(t => t + 1)}
+              className="bg-gray-700 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:rotate-180 duration-500 transition-all text-sm"
+              title="Refresh price"
+            >
+              🔄
+            </button>
           </div>
 
           {/* To */}
