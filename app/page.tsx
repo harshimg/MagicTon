@@ -46,6 +46,8 @@ export default function Home() {
   const [prediction, setPrediction] = useState<string | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
   const [successData, setSuccessData] = useState<{ fromAmount: string; fromSymbol: string; toAmount: string; toSymbol: string; txHash?: string } | null>(null);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showFaq, setShowFaq] = useState(false);
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
@@ -363,6 +365,68 @@ export default function Home() {
         </div>
       )}
 
+      {/* About Modal */}
+{showAbout && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-8 max-w-lg w-full shadow-2xl">
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center gap-3">
+          <img src="/MagicTon_logo.png" alt="MagicTon" className="w-10 h-10 rounded-xl" />
+          <h2 className="text-white font-bold text-2xl">About MagicTon</h2>
+        </div>
+        <button onClick={() => setShowAbout(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+      </div>
+      <div className="space-y-4 text-gray-400 text-sm">
+        <p>🪄 <span className="text-white font-bold">MagicTon</span> is a decentralized token swap app built on the <span className="text-purple-400">TON blockchain</span>, powered by STON.fi DEX.</p>
+        <p>✨ Swap any TON-based token instantly with live prices, real wallet balances, and zero custody of your funds.</p>
+        <p>🎲 Our unique <span className="text-yellow-400 font-bold">Lucky Swap</span> feature randomly picks a token pair for adventurous traders!</p>
+        <p>🔒 MagicTon is fully <span className="text-green-400 font-bold">non-custodial</span> — we never hold your keys or funds. All transactions are signed directly in your wallet.</p>
+        <div className="bg-gray-800 rounded-2xl p-4 mt-4">
+          <p className="text-white font-bold mb-2">Built with:</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <span className="text-purple-400">• Next.js</span>
+            <span className="text-purple-400">• STON.fi SDK</span>
+            <span className="text-purple-400">• TonConnect</span>
+            <span className="text-purple-400">• Tailwind CSS</span>
+            <span className="text-purple-400">• CoinGecko API</span>
+            <span className="text-purple-400">• Toncenter API</span>
+          </div>
+        </div>
+        <a href="https://github.com/harshimg/MagicTon" target="_blank" className="block text-center bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl py-2 mt-4 transition-all">View on GitHub →</a>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* FAQ Modal */}
+{showFaq && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-8 max-w-lg w-full shadow-2xl max-h-[80vh] overflow-y-auto">
+      <div className="flex justify-between items-start mb-6">
+        <h2 className="text-white font-bold text-2xl">❓ FAQ</h2>
+        <button onClick={() => setShowFaq(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+      </div>
+      <div className="space-y-4">
+        {[
+          { q: 'What is MagicTon?', a: 'MagicTon is a decentralized token swap app on the TON blockchain, powered by STON.fi DEX.' },
+          { q: 'Is MagicTon safe?', a: 'Yes! MagicTon is fully non-custodial. We never hold your private keys or funds. All swaps are signed directly in your Tonkeeper wallet.' },
+          { q: 'What is Lucky Swap?', a: 'Lucky Swap randomly picks a token pair from your wallet balance and swaps 10% of it. It\'s a fun way to discover new tokens!' },
+          { q: 'What wallets are supported?', a: 'MagicTon supports Tonkeeper, TonHub, and any TonConnect-compatible wallet.' },
+          { q: 'What are the fees?', a: 'MagicTon charges no fees. You only pay STON.fi\'s standard 0.2% swap fee plus TON network gas fees.' },
+          { q: 'Why does my balance show —?', a: 'Connect your wallet first by clicking the Connect Wallet button. Balances load automatically after connection.' },
+          { q: 'What is slippage?', a: 'Slippage is the difference between expected and actual swap price due to market movement. MagicTon uses 1% slippage tolerance by default.' },
+          { q: 'Can I add custom tokens?', a: 'Currently MagicTon supports a curated list of trusted TON tokens. More tokens will be added soon!' },
+        ].map((item, i) => (
+          <div key={i} className="bg-gray-800 rounded-2xl p-4">
+            <p className="text-white font-bold text-sm mb-2">Q: {item.q}</p>
+            <p className="text-gray-400 text-xs">{item.a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
+
       {/* Footer */}
       <div className="relative z-10 w-full max-w-4xl mt-12 border-t border-gray-800 pt-8 pb-6 px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
@@ -378,20 +442,20 @@ export default function Home() {
             <div className="space-y-2 text-gray-500 text-xs">
               <p className="hover:text-purple-400 cursor-pointer" onClick={() => setActiveTab('swap')}>Magic Swap</p>
               <p className="hover:text-purple-400 cursor-pointer" onClick={() => setActiveTab('lucky')}>Lucky Swap</p>
-              <p className="hover:text-purple-400 cursor-pointer" onClick={() => setShowHistory(true)}>Swap History</p>
+
             </div>
           </div>
           <div>
             <p className="text-white font-bold mb-3 text-sm">MagicTon</p>
             <div className="space-y-2 text-gray-500 text-xs">
-              <p className="hover:text-purple-400 cursor-pointer">About</p>
+              <p className="hover:text-purple-400 cursor-pointer" onClick={() => setShowAbout(true)}>About</p>
               <a href="https://github.com/harshimg/MagicTon" target="_blank" className="block hover:text-purple-400">GitHub</a>
             </div>
           </div>
           <div>
             <p className="text-white font-bold mb-3 text-sm">Support</p>
             <div className="space-y-2 text-gray-500 text-xs">
-              <p className="hover:text-purple-400 cursor-pointer">FAQ</p>
+              <p className="hover:text-purple-400 cursor-pointer" onClick={() => setShowFaq(true)}>FAQ</p>
               <p className="hover:text-purple-400 cursor-pointer">Contact</p>
             </div>
           </div>
@@ -402,7 +466,7 @@ export default function Home() {
             <a href="https://twitter.com/" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">🐦</a>
             <a href="https://github.com/harshimg/MagicTon" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">💻</a>
           </div>
-          <p className="text-gray-600 text-xs">MagicTon © 2025 • Powered by STON.fi • Built on TON</p>
+          <p className="text-gray-600 text-xs">MagicTon © 2026 • Powered by STON.fi • Built on TON</p>
           <p className="text-gray-600 text-xs">Data by CoinGecko</p>
         </div>
       </div>
