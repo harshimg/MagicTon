@@ -224,13 +224,17 @@ export default function Home() {
         )}
       </div>
 
-      {/* Flip + Refresh + Slippage */}
-      <div className="flex justify-center items-center gap-3 my-2">
-        <button onClick={handleFlip} className="bg-gray-700 hover:bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center transition-all hover:rotate-180 duration-300 text-lg">⇅</button>
-        <button onClick={() => setRefreshTick(t => t + 1)} className="bg-gray-700 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:rotate-180 duration-500 transition-all text-sm" title="Refresh price">🔄</button>
-        <button onClick={() => setShowSlippage(!showSlippage)} className="bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-full px-3 h-8 flex items-center gap-1 text-xs font-bold transition-all" title="Slippage settings">
-          ⚙️ {slippage}%
-        </button>
+      {/* Swap header with title + controls */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-white font-bold text-lg">Swap tokens</p>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setRefreshTick(t => t + 1)}
+            className="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-700 transition-all text-lg"
+            title="Refresh price">↻</button>
+          <button onClick={() => setShowSlippage(!showSlippage)}
+            className="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-700 transition-all text-sm font-bold"
+            title="Slippage settings">⚙️</button>
+        </div>
       </div>
 
       {/* Slippage Settings */}
@@ -247,13 +251,9 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-gray-500 text-xs">Custom:</span>
-            <input
-              type="number"
-              placeholder="Custom %"
-              value={!['0.5','1','2','3'].includes(slippage) ? slippage : ''}
+            <input type="number" placeholder="Custom %" value={!['0.5','1','2','3'].includes(slippage) ? slippage : ''}
               onChange={(e) => setSlippage(e.target.value)}
-              className="bg-gray-700 text-white text-xs rounded-xl px-3 py-1.5 flex-1 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
+              className="bg-gray-700 text-white text-xs rounded-xl px-3 py-1.5 flex-1 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             <span className="text-gray-500 text-xs">%</span>
           </div>
           {parseFloat(slippage) > 5 && (
@@ -261,6 +261,12 @@ export default function Home() {
           )}
         </div>
       )}
+
+      {/* Flip - only in middle */}
+      <div className="flex justify-center my-2">
+        <button onClick={handleFlip} className="bg-gray-700 hover:bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center transition-all hover:rotate-180 duration-300 text-lg border-4 border-gray-900">⇅</button>
+      </div>
+
 
       {/* To */}
       <div className="bg-gray-800 rounded-2xl p-4 mb-4">
