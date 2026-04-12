@@ -6,10 +6,9 @@ import { StonApiClient } from '@ston-fi/api';
 import { DEX, pTON } from '@ston-fi/sdk';
 import { TonClient, toNano } from '@ton/ton';
 
-const stonApiClient = new StonApiClient();
+
 const tonClient = new TonClient({
   endpoint: 'https://toncenter.com/api/v2/jsonRPC',
-  apiKey: '8c598d1b958dc1bd1f64714540f7b8f7485081fd06338eab2c4acef1ee498f5f'
 });
 
 const TOKENS = [
