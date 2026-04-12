@@ -44,6 +44,8 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [prediction, setPrediction] = useState<string | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [slippage, setSlippage] = useState('1');
+  const [showSlippage, setShowSlippage] = useState(false);
   const [successData, setSuccessData] = useState<{ fromAmount: string; fromSymbol: string; toAmount: string; toSymbol: string; txHash?: string } | null>(null);
   const [showAbout, setShowAbout] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
@@ -100,7 +102,7 @@ export default function Home() {
         const res = await fetch('/api/swap', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ offerAddress: fromToken.address, askAddress: toToken.address, amount, decimals: fromToken.decimals }),
+          body: JSON.stringify({ offerAddress: fromToken.address, askAddress: toToken.address, amount, decimals: fromToken.decimals, slippage }),
         });
         const result = await res.json();
         const outAmount = parseInt(result.askUnits) / Math.pow(10, toToken.decimals);
@@ -222,11 +224,43 @@ export default function Home() {
         )}
       </div>
 
-      {/* Flip + Refresh */}
+      {/* Flip + Refresh + Slippage */}
       <div className="flex justify-center items-center gap-3 my-2">
         <button onClick={handleFlip} className="bg-gray-700 hover:bg-purple-600 text-white rounded-full w-9 h-9 flex items-center justify-center transition-all hover:rotate-180 duration-300 text-lg">⇅</button>
         <button onClick={() => setRefreshTick(t => t + 1)} className="bg-gray-700 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:rotate-180 duration-500 transition-all text-sm" title="Refresh price">🔄</button>
+        <button onClick={() => setShowSlippage(!showSlippage)} className="bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-full px-3 h-8 flex items-center gap-1 text-xs font-bold transition-all" title="Slippage settings">
+          ⚙️ {slippage}%
+        </button>
       </div>
+
+      {/* Slippage Settings */}
+      {showSlippage && (
+        <div className="bg-gray-800 rounded-2xl p-4 mb-3">
+          <p className="text-gray-400 text-xs mb-3 font-bold">⚙️ Slippage Tolerance</p>
+          <div className="flex gap-2 mb-3">
+            {['0.5', '1', '2', '3'].map(val => (
+              <button key={val} onClick={() => setSlippage(val)}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${slippage === val ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
+                {val}%
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500 text-xs">Custom:</span>
+            <input
+              type="number"
+              placeholder="Custom %"
+              value={!['0.5','1','2','3'].includes(slippage) ? slippage : ''}
+              onChange={(e) => setSlippage(e.target.value)}
+              className="bg-gray-700 text-white text-xs rounded-xl px-3 py-1.5 flex-1 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-gray-500 text-xs">%</span>
+          </div>
+          {parseFloat(slippage) > 5 && (
+            <p className="text-yellow-400 text-xs mt-2">⚠️ High slippage! You may get a bad price.</p>
+          )}
+        </div>
+      )}
 
       {/* To */}
       <div className="bg-gray-800 rounded-2xl p-4 mb-4">

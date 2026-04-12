@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { offerAddress, askAddress, amount, decimals } = await req.json();
+    const { offerAddress, askAddress, amount, decimals, slippage } = await req.json();
 
     if (!offerAddress || !askAddress || !amount) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -47,12 +47,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
+    const parsedSlippage = parseFloat(slippage || '1');
+    if (isNaN(parsedSlippage) || parsedSlippage <= 0 || parsedSlippage > 50) {
+      return NextResponse.json({ error: 'Invalid slippage' }, { status: 400 });
+    }
+
     const units = Math.floor(parsedAmount * Math.pow(10, decimals)).toString();
     const result = await stonApiClient.simulateSwap({
       offerAddress,
       askAddress,
       offerUnits: units,
-      slippageTolerance: '0.01',
+      slippageTolerance: (parseFloat(slippage || '1') / 100).toString(),
     });
 
     return NextResponse.json({ askUnits: result.askUnits });
