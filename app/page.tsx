@@ -53,7 +53,7 @@ export default function Home() {
     const fetchPrices = async () => {
       try {
         const ids = 'the-open-network,ston-2,notcoin,gmt-token,bitcoin,ethereum';
-        const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&x_cg_demo_api_key=CG-vGAx3E1oe3S32DArqM2xX4Hs`);
+        const res = await fetch('/api/prices');
         const data = await res.json();
         const prices: Record<string, { price: number; change: number }> = {};
         const mapping: Record<string, string> = { 'the-open-network': 'TON', 'ston-2': 'STON', 'notcoin': 'NOT', 'gmt-token': 'GOMINING', 'bitcoin': 'BTC', 'ethereum': 'ETH' };
@@ -73,11 +73,12 @@ export default function Home() {
         const { Address } = await import('@ton/ton');
         const userAddr = Address.parse(wallet.account.address);
         const newBalances: Record<string, string> = {};
-        const tonBal = await tonClient.getBalance(userAddr);
-        newBalances['TON'] = (Number(tonBal) / 1e9).toFixed(2);
+        const tonRes = await fetch(`/api/balance?owner_address=${userAddr.toString()}`);
+        const tonData = await tonRes.json();
+        newBalances['TON'] = (Number(tonData.result) / 1e9).toFixed(2);
         for (const token of TOKENS.filter(t => t.symbol !== 'TON')) {
           try {
-            const res = await fetch(`https://toncenter.com/api/v3/jetton/wallets?owner_address=${userAddr.toString()}&jetton_address=${token.address}&limit=1&api_key=8c598d1b958dc1bd1f64714540f7b8f7485081fd06338eab2c4acef1ee498f5f`);
+            const res = await fetch(`/api/balance?owner_address=${userAddr.toString()}&jetton_address=${token.address}`);
             const data = await res.json();
             const bal = data?.jetton_wallets?.[0]?.balance ?? '0';
             newBalances[token.symbol] = (Number(bal) / Math.pow(10, token.decimals)).toFixed(2);
@@ -95,7 +96,12 @@ export default function Home() {
       setLoadingQuote(true);
       try {
         const units = Math.floor(parseFloat(amount) * Math.pow(10, fromToken.decimals)).toString();
-        const result = await stonApiClient.simulateSwap({ offerAddress: fromToken.address, askAddress: toToken.address, offerUnits: units, slippageTolerance: '0.01' });
+        const res = await fetch('/api/swap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ offerAddress: fromToken.address, askAddress: toToken.address, amount, decimals: fromToken.decimals }),
+        });
+        const result = await res.json();
         const outAmount = parseInt(result.askUnits) / Math.pow(10, toToken.decimals);
         setQuote(outAmount.toFixed(6));
         const fromChange = bannerPrices[fromToken.symbol]?.change ?? 0;
