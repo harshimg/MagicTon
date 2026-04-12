@@ -465,10 +465,18 @@ export default function Home() {
             <a href="https://twitter.com/" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">🐦</a>
             <a href="https://github.com/harshimg/MagicTon" target="_blank" className="text-gray-500 hover:text-purple-400 text-xl">💻</a>
           </div>
-          <p className="text-gray-600 text-xs">MagicTon © 2026 • Powered by STON.fi • Built on TON</p>
-          <p className="text-gray-600 text-xs">Data by CoinGecko</p>
+          <p className="text-gray-600 text-xs">
+            MagicTon © 2026 • Powered by{' '}
+            <a href="https://ston.fi" target="_blank" className="hover:text-purple-400 transition-colors">STON.fi</a>
+              {' '}• Built on{' '}
+            <a href="https://ton.org" target="_blank" className="hover:text-blue-400 transition-colors">TON</a>
+          </p>
+          <p className="text-gray-600 text-xs">
+            Data by{' '}
+            <a href="https://coingecko.com" target="_blank" className="hover:text-green-400 transition-colors">CoinGecko</a>
+          </p>
+          </div>
         </div>
-      </div>
 
       <style jsx>{`
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
