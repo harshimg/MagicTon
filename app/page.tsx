@@ -190,7 +190,7 @@ export default function Home() {
     <>
       {isLucky && (
         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 mb-4 text-center">
-          <p className="text-yellow-400 text-sm font-bold">🎲 Lucky Swap — feeling lucky today?</p>
+          <p className="text-yellow-400 text-sm font-bold">🎲 Lucky Swap - feeling lucky today?</p>
           <p className="text-gray-400 text-xs mt-1">Randomly picks a token pair using 10% of your balance</p>
           <button onClick={handleLuckySwap} className="mt-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm rounded-xl px-4 py-1.5 transition-all">
             🎲 Pick Random Tokens
