@@ -11,15 +11,17 @@ const tonClient = new TonClient({
   endpoint: 'https://toncenter.com/api/v2/jsonRPC',
 });
 
-const TOKENS = [
-  { symbol: 'TON', name: 'Toncoin', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9 },
-  { symbol: 'USDt', name: 'Tether USD', icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 },
-  { symbol: 'STON', name: 'STON.fi', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9 },
-  { symbol: 'NOT', name: 'Notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', decimals: 9 },
-  { symbol: 'GOMINING', name: 'GoMining Token', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542', address: 'EQD0laik0FgHV8aNfRhebi8GDG2rpDyKGXem0MBfya_Ew1-8', decimals: 9 },
+type Token = { symbol: string; name: string; icon: string; address: string; decimals: number; verified: boolean; };
+
+const DEFAULT_tokens: Token[] = [
+  { symbol: 'TON', name: 'Toncoin', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png', address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', decimals: 9, verified: true },
+  { symbol: 'USDt', name: 'Tether USD', icon: 'https://assets.coingecko.com/coins/images/325/small/Tether.png', address: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6, verified: true },
+  { symbol: 'STON', name: 'STON.fi', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059', address: 'EQA2kCVNwVsil2EM2mB0SkXytxCqQjS4mttjDpnXmwG9T6bO', decimals: 9, verified: true },
+  { symbol: 'NOT', name: 'Notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350', address: 'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT', decimals: 9, verified: true },
+  { symbol: 'GOMINING', name: 'GoMining Token', icon: 'https://assets.coingecko.com/coins/images/15662/standard/GoMining_Logo.webp?1769225542', address: 'EQD0laik0FgHV8aNfRhebi8GDG2rpDyKGXem0MBfya_Ew1-8', decimals: 9, verified: true },
 ];
 
-const BANNER_TOKENS = [
+const BANNER_tokens = [
   { symbol: 'TON', coingecko: 'the-open-network', icon: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png' },
   { symbol: 'STON', coingecko: 'ston-2', icon: 'https://assets.coingecko.com/coins/images/31233/standard/STON.jpg?1696530059' },
   { symbol: 'NOT', coingecko: 'notcoin', icon: 'https://assets.coingecko.com/coins/images/33453/standard/rFmThDiD_400x400.jpg?1701876350' },
@@ -32,8 +34,9 @@ type SwapRecord = { from: string; to: string; fromAmount: string; toAmount: stri
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'swap' | 'lucky'>('swap');
-  const [fromToken, setFromToken] = useState(TOKENS[0]);
-  const [toToken, setToToken] = useState(TOKENS[1]);
+  const [tokens, settokens] = useState<Token[]>(DEFAULT_tokens);
+  const [fromToken, setFromToken] = useState(tokens[0]);
+  const [toToken, setToToken] = useState(tokens[1]);
   const [amount, setAmount] = useState('');
   const [quote, setQuote] = useState<string | null>(null);
   const [loadingQuote, setLoadingQuote] = useState(false);
@@ -49,6 +52,8 @@ export default function Home() {
   const [successData, setSuccessData] = useState<{ fromAmount: string; fromSymbol: string; toAmount: string; toSymbol: string; txHash?: string } | null>(null);
   const [showAbout, setShowAbout] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
+  
+  const [showBadgeInfo, setShowBadgeInfo] = useState(false);
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
 
@@ -79,7 +84,7 @@ export default function Home() {
         const tonRes = await fetch(`/api/balance?owner_address=${userAddr.toString()}`);
         const tonData = await tonRes.json();
         newBalances['TON'] = (Number(tonData.result) / 1e9).toFixed(2);
-        for (const token of TOKENS.filter(t => t.symbol !== 'TON')) {
+        for (const token of tokens.filter(t => t.symbol !== 'TON')) {
           try {
             const res = await fetch(`/api/balance?owner_address=${userAddr.toString()}&jetton_address=${token.address}`);
             const data = await res.json();
@@ -155,10 +160,10 @@ export default function Home() {
   };
 
   const handleLuckySwap = () => {
-    const available = TOKENS.filter(t => parseFloat(balances[t.symbol] ?? '0') > 0);
+    const available = tokens.filter(t => parseFloat(balances[t.symbol] ?? '0') > 0);
     if (available.length === 0) { alert('No token balance found for Lucky Swap!'); return; }
     const from = available[Math.floor(Math.random() * available.length)];
-    const others = TOKENS.filter(t => t.symbol !== from.symbol);
+    const others = tokens.filter(t => t.symbol !== from.symbol);
     const to = others[Math.floor(Math.random() * others.length)];
     const bal = parseFloat(balances[from.symbol] ?? '0');
     setFromToken(from); setToToken(to); setAmount((bal * 0.1).toFixed(4));
@@ -166,23 +171,76 @@ export default function Home() {
 
   const handleFlip = () => { setFromToken(toToken); setToToken(fromToken); setQuote(null); setAmount(''); };
 
-  const TokenSelect = ({ value, onChange }: { value: typeof TOKENS[0]; onChange: (t: typeof TOKENS[0]) => void }) => {
+  const TokenSelect = ({ value, onChange }: { value: Token; onChange: (t: Token) => void }) => {
     const [open, setOpen] = useState(false);
+    const [contractInput, setContractInput] = useState('');
+    const [fetchingToken, setFetchingToken] = useState(false);
+    const [fetchError, setFetchError] = useState('');
+
+    const handleAddCustomToken = async () => {
+      if (!contractInput.trim()) return;
+      setFetchingToken(true);
+      setFetchError('');
+      try {
+        const res = await fetch(`/api/token?address=${contractInput.trim()}`);
+        const data = await res.json();
+        if (data.error) { setFetchError(data.error); setFetchingToken(false); return; }
+        const newToken: Token = {
+          symbol: data.symbol,
+          name: data.name,
+          icon: data.image || 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png',
+          address: contractInput.trim(),
+          decimals: data.decimals ?? 9,
+          verified: false,
+        };
+        settokens(prev => prev.find(t => t.address === newToken.address) ? prev : [...prev, newToken]);
+        onChange(newToken);
+        setOpen(false);
+        setContractInput('');
+      } catch {
+        setFetchError('Failed to fetch token info');
+      }
+      setFetchingToken(false);
+    };
+
     return (
       <div className="relative">
         <button onClick={() => setOpen(!open)} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl px-3 py-2 font-bold outline-none cursor-pointer">
           <img src={value.icon} alt={value.symbol} className="w-6 h-6 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           <span>{value.symbol}</span>
+          {value.verified && (
+            <span onClick={(e) => { e.stopPropagation(); setShowBadgeInfo(true); }}
+              className="text-blue-400 text-xs cursor-pointer hover:text-blue-300" title="Verified token">✓</span>
+          )}
           <span className="text-gray-400 text-sm">▼</span>
         </button>
         {open && (
-          <div className="absolute top-12 left-0 bg-gray-800 border border-gray-600 rounded-2xl overflow-hidden z-50 min-w-[150px] shadow-xl">
-            {TOKENS.map(t => (
-              <button key={t.symbol} onClick={() => { onChange(t); setOpen(false); }} className="flex items-center gap-2 w-full px-4 py-3 hover:bg-gray-700 text-white font-bold">
+          <div className="absolute top-12 left-0 bg-gray-800 border border-gray-600 rounded-2xl overflow-hidden z-50 w-64 shadow-xl">
+            {/* Token list */}
+            {tokens.map(t => (
+              <button key={t.address} onClick={() => { onChange(t); setOpen(false); }} className="flex items-center gap-2 w-full px-4 py-3 hover:bg-gray-700 text-white font-bold">
                 <img src={t.icon} alt={t.symbol} className="w-6 h-6 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 <span>{t.symbol}</span>
+                {t.verified && <span className="text-blue-400 text-xs">✓</span>}
+                {!t.verified && <span className="text-yellow-400 text-xs">⚠️</span>}
               </button>
             ))}
+            {/* Custom token input */}
+            <div className="border-t border-gray-700 p-3">
+              <p className="text-gray-400 text-xs mb-2 font-bold">+ Add Custom Token</p>
+              <input
+                type="text"
+                placeholder="Paste contract address..."
+                value={contractInput}
+                onChange={(e) => setContractInput(e.target.value)}
+                className="w-full bg-gray-700 text-white text-xs rounded-xl px-3 py-2 outline-none placeholder-gray-500 mb-2"
+              />
+              {fetchError && <p className="text-red-400 text-xs mb-2">{fetchError}</p>}
+              <button onClick={handleAddCustomToken} disabled={fetchingToken || !contractInput.trim()}
+                className="w-full bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl py-1.5 transition-all">
+                {fetchingToken ? 'Fetching...' : 'Add Token'}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -196,7 +254,7 @@ export default function Home() {
           <p className="text-yellow-400 text-sm font-bold">🎲 Lucky Swap - feeling lucky today?</p>
           <p className="text-gray-400 text-xs mt-1">Randomly picks a token pair using 10% of your balance</p>
           <button onClick={handleLuckySwap} className="mt-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm rounded-xl px-4 py-1.5 transition-all">
-            🎲 Pick Random Tokens
+            🎲 Pick Random tokens
           </button>
         </div>
       )}
@@ -332,7 +390,7 @@ export default function Home() {
         {/* Price Banner */}
         <div className="w-full bg-black/50 overflow-hidden py-1.5 border-b border-gray-800">
           <div className="flex animate-marquee gap-8 whitespace-nowrap">
-            {[...BANNER_TOKENS, ...BANNER_TOKENS].map((t, i) => (
+            {[...BANNER_tokens, ...BANNER_tokens].map((t, i) => (
               <div key={i} className="flex items-center gap-2 text-xs">
                 <img src={t.icon} alt={t.symbol} className="w-4 h-4 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 <span className="text-white font-bold">{t.symbol}</span>
@@ -403,6 +461,29 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Badge Info Modal */}
+{showBadgeInfo && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="bg-gray-900 border border-blue-500/30 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+      <div className="flex justify-between items-start mb-4">
+        <h2 className="text-white font-bold text-xl">✓ Verified Token</h2>
+        <button onClick={() => setShowBadgeInfo(false)} className="text-gray-500 hover:text-white text-2xl">×</button>
+      </div>
+      <div className="space-y-3 text-sm">
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4">
+          <p className="text-blue-400 font-bold mb-2">✓ What does verified mean?</p>
+          <p className="text-gray-400 text-xs">This token has been manually reviewed and added to MagicTon's trusted token list. It is a well-known token on the TON blockchain.</p>
+        </div>
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4">
+          <p className="text-yellow-400 font-bold mb-2">⚠️ Unverified tokens</p>
+          <p className="text-gray-400 text-xs">Custom tokens added via contract address are NOT verified. Always double-check the contract address before swapping. Beware of scam tokens!</p>
+        </div>
+        <button onClick={() => setShowBadgeInfo(false)} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl py-2 transition-all text-sm">Got it!</button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* About Modal */}
 {showAbout && (
