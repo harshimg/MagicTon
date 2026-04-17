@@ -31,7 +31,7 @@ const BANNER_tokens = [
 ];
 
 type SwapRecord = { from: string; to: string; fromAmount: string; toAmount: string; time: string; };
-
+{/* state */}
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'swap' | 'lucky'>('swap');
   const [tokens, settokens] = useState<Token[]>(DEFAULT_tokens);
@@ -52,10 +52,18 @@ export default function Home() {
   const [successData, setSuccessData] = useState<{ fromAmount: string; fromSymbol: string; toAmount: string; toSymbol: string; txHash?: string } | null>(null);
   const [showAbout, setShowAbout] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
-  
+  const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [showBadgeInfo, setShowBadgeInfo] = useState(false);
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
+  const [theme, setTheme] = useState<'dark' | 'light' | 'magic'>('dark');
+  const [particles] = useState(
+  [...Array(30)].map(() => ({
+    top: Math.random() * 100,
+    left: Math.random() * 100,
+    duration: 2 + Math.random() * 3,
+  }))
+);
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -130,6 +138,17 @@ export default function Home() {
     if (saved) setSwapHistory(JSON.parse(saved));
   }, []);
 
+  useEffect(() => {
+  if (theme !== 'magic') return;
+
+  const move = (e: MouseEvent) => {
+    setCursor({ x: e.clientX, y: e.clientY });
+  };
+
+  window.addEventListener('mousemove', move);
+  return () => window.removeEventListener('mousemove', move);
+}, [theme]);
+
   const saveSwap = (record: SwapRecord) => {
     const updated = [record, ...swapHistory].slice(0, 10);
     setSwapHistory(updated);
@@ -155,6 +174,10 @@ export default function Home() {
       await tonConnectUI.sendTransaction({ validUntil: Math.floor(Date.now() / 1000) + 600, messages: [{ address: txParams.to.toString(), amount: txParams.value.toString(), payload: txParams.body?.toBoc().toString('base64') }] });
       saveSwap({ from: fromToken.symbol, to: toToken.symbol, fromAmount: amount, toAmount: quote ?? '?', time: new Date().toLocaleString() });
       setSuccessData({ fromAmount: amount, fromSymbol: fromToken.symbol, toAmount: quote ?? '?', toSymbol: toToken.symbol, txHash: wallet?.account?.address });
+      if (theme === 'magic') {
+  triggerMagicEffect();
+  new Audio('/magic.mp3').play(); // optional sound
+}
     } catch (e: any) { alert('Swap failed: ' + (e?.message || 'Unknown error')); }
     setLoading(false);
   };
@@ -170,7 +193,15 @@ export default function Home() {
   };
 
   const handleFlip = () => { setFromToken(toToken); setToToken(fromToken); setQuote(null); setAmount(''); };
+  const triggerMagicEffect = () => {
+  const el = document.createElement('div');
+  el.className = 'magic-burst';
+  document.body.appendChild(el);
 
+  setTimeout(() => {
+    document.body.removeChild(el);
+  }, 1500);
+};
   const TokenSelect = ({ value, onChange }: { value: Token; onChange: (t: Token) => void }) => {
     const [open, setOpen] = useState(false);
     const [contractInput, setContractInput] = useState('');
@@ -205,7 +236,13 @@ export default function Home() {
 
     return (
       <div className="relative">
-        <button onClick={() => setOpen(!open)} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl px-3 py-2 font-bold outline-none cursor-pointer">
+        <button onClick={() => setOpen(!open)} 
+        className={`flex items-center gap-2 rounded-2xl px-3 py-2 font-bold outline-none cursor-pointer transition-all ${
+  theme === 'magic'
+    ? 'bg-gray-700 hover:bg-purple-600 shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+    : 'bg-gray-700 hover:bg-gray-600'
+}`}
+>
           <img src={value.icon} alt={value.symbol} className="w-6 h-6 rounded-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           <span>{value.symbol}</span>
           {value.verified && (
@@ -258,7 +295,13 @@ export default function Home() {
           </button>
         </div>
       )}
-      <div className="bg-gray-900 border border-purple-500/30 rounded-3xl p-6 shadow-2xl shadow-purple-500/10">
+      <div
+  className={`rounded-3xl p-6 shadow-2xl transition-all ${
+    theme === 'magic'
+      ? 'bg-black/40 border border-purple-500 shadow-purple-500/40 backdrop-blur-xl'
+      : 'bg-gray-900 border border-purple-500/30 shadow-purple-500/10'
+  }`}
+>
 
       {/* From */}
       <div className="bg-gray-800 rounded-2xl p-4 mb-2">
@@ -350,10 +393,23 @@ export default function Home() {
         </div>
       )}
 
-      <button onClick={handleMagicSwap} disabled={loading}
-        className={`w-full disabled:opacity-50 text-white font-bold text-xl rounded-2xl py-4 transition-all duration-300 shadow-lg mb-3 ${isLucky ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 shadow-yellow-500/30' : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-purple-500/30'}`}>
-        {loading ? '✨ Magic happening...' : isLucky ? '🎲 Lucky Swap!' : '✨ Magic Swap'}
-      </button>
+      <button
+  onClick={handleMagicSwap}
+  disabled={loading}
+  className={`w-full disabled:opacity-50 text-white font-bold text-xl rounded-2xl py-4 transition-all duration-300 shadow-lg mb-3 hover:scale-105 active:scale-95 ${
+    theme === 'magic'
+      ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-pulse shadow-[0_0_30px_rgba(168,85,247,0.8)]'
+      : isLucky
+      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 shadow-yellow-500/30'
+      : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-purple-500/30'
+  }`}
+>
+  {loading
+    ? '✨ Magic happening...'
+    : isLucky
+    ? '🎲 Lucky Swap!'
+    : '✨ Magic Swap'}
+</button>
 
       <button onClick={() => setShowHistory(!showHistory)}
         className="w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-400 font-bold text-sm rounded-2xl py-2 transition-all duration-300">
@@ -382,7 +438,43 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen bg-black flex flex-col items-center">
+    <main
+  className={`min-h-screen flex flex-col items-center transition-all duration-500 ${
+    theme === 'dark'
+      ? 'bg-black text-white'
+      : theme === 'light'
+      ? 'bg-white text-black'
+      : 'bg-gradient-to-br from-purple-900 via-black to-blue-900 text-white'
+      
+  }`}
+>
+
+  {theme === 'magic' && (
+  <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    {particles.map((p, i) => (
+  <div
+    key={i}
+    className="absolute w-1 h-1 bg-purple-400 rounded-full animate-pulse"
+    style={{
+      top: p.top + '%',
+      left: p.left + '%',
+      animationDuration: p.duration + 's',
+    }}
+  />
+))}
+  </div>
+)}
+
+
+{theme === 'magic' && (
+  <div
+    className="fixed w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none z-0 transition-all duration-75"
+    style={{
+      top: cursor.y - 80,
+      left: cursor.x - 80,
+    }}
+  />
+)}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
 
       {/* Navbar */}
@@ -425,6 +517,22 @@ export default function Home() {
               🎲 Lucky Swap
             </button>
           </div>
+          
+          <div className="flex gap-2 mr-4">
+  {['dark', 'light', 'magic'].map((t) => (
+    <button
+      key={t}
+      onClick={() => setTheme(t as any)}
+      className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+        theme === t
+          ? 'bg-purple-600 text-white'
+          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+      }`}
+    >
+      {t === 'magic' ? '✨ Magic' : t}
+    </button>
+  ))}
+</div>
 
           {/* Wallet right */}
           <TonConnectButton />
@@ -600,6 +708,20 @@ export default function Home() {
         </div>
 
       <style jsx>{`
+        .magic-burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(168,85,247,0.4) 0%, transparent 70%);
+  animation: burst 1.5s ease-out;
+  z-index: 999;
+}
+
+@keyframes burst {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(2); }
+}
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .animate-marquee { animation: marquee 20s linear infinite; }
         @keyframes slide-in { 0% { transform: translateX(100px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
