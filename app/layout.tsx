@@ -15,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={geist.className}>
+        <Analytics/>
         <TonConnectUIProvider manifestUrl="https://magic-ton.vercel.app/tonconnect-manifest.json">
           {children}
         </TonConnectUIProvider>
